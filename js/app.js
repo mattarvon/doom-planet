@@ -37,14 +37,10 @@ function speciesKey(sp) {
   return "default";
 }
 
-// image cascade: per-id -> per-species -> default, each tried across transparent
-// formats, then the inline SVG shark. Drop files in assets/sharks/ (e.g.
-// white.png, tiger.webp, mako.png, default.png, or 1.png for a specific shark).
-// Top-down view, nose pointing up, transparent background.
-// markers are framed thumbnails + the dossier shows a big portrait, so a photo's
-// own background is fine here — JPG included.
+// image cascade for the DOSSIER PORTRAIT only (map markers are the vector shark).
+// per-id -> per-species -> default, across formats. Drop files in assets/sharks/
+// (e.g. 1.jpg, white.webp, default.jpg). See assets/sharks/README.md.
 const IMG_EXTS = ['png', 'webp', 'jpg', 'jpeg', 'gif', 'svg'];
-const _imgResolved = {};   // shark id -> working url, or '' once we know it's SVG-fallback
 
 function imgSrcs(s) {
   const key = speciesKey(s.species);
@@ -52,10 +48,7 @@ function imgSrcs(s) {
   [String(s.id), key, 'default'].forEach(b => IMG_EXTS.forEach(e => srcs.push(`assets/sharks/${b}.${e}`)));
   return srcs;
 }
-function svgFallbackHTML(hot) {
-  return `<div class="svgfallback"><svg viewBox="-70 -42 140 84" width="100%" height="100%">${sharkSVG(1, !!hot)}</svg></div>`;
-}
-// dossier case-file portrait: walk the same image cascade; hide the banner if none load.
+// dossier case-file portrait: walk the image cascade; hide the banner if none load.
 function setPortrait(s) {
   const img = document.getElementById('d-photo');
   const srcs = imgSrcs(s);
@@ -65,46 +58,21 @@ function setPortrait(s) {
   img.onerror = () => { i++; if (i < srcs.length) img.src = srcs[i]; else { img.onerror = null; img.removeAttribute('src'); } };
   img.src = srcs[0];
 }
-function sharkImgOk(img) {
-  const id = img.getAttribute('data-id');
-  if (id != null) _imgResolved[id] = img.getAttribute('src');
-}
-function sharkImgErr(img) {
-  let list = [];
-  try { list = JSON.parse(img.getAttribute('data-fallback') || '[]'); } catch (e) {}
-  if (list.length) {
-    img.src = list.shift();
-    img.setAttribute('data-fallback', JSON.stringify(list));
-    return;
-  }
-  const id = img.getAttribute('data-id');
-  const hot = img.getAttribute('data-hot') === '1';
-  if (id != null) _imgResolved[id] = '';
-  const wrap = document.createElement('div');
-  wrap.className = 'svgfallback';
-  wrap.innerHTML = `<svg viewBox="-70 -42 140 84" width="100%" height="100%">${sharkSVG(1, hot)}</svg>`;
-  img.replaceWith(wrap);
-}
 
-function markerHTML(s, hot, head) {
-  const cached = _imgResolved[s.id];
-  let inner;
-  if (cached === '') {
-    inner = svgFallbackHTML(hot);                       // known: no image, use vector
-  } else if (typeof cached === 'string') {
-    inner = `<img class="sphoto" style="--rot:${head.toFixed(0)}deg" src="${cached}" alt="">`;
-  } else {
-    const srcs = imgSrcs(s);
-    inner = `<img class="sphoto" src="${srcs[0]}"
-           data-fallback='${JSON.stringify(srcs.slice(1))}' data-id="${s.id}" data-hot="${hot ? 1 : 0}"
-           onload="sharkImgOk(this)" onerror="sharkImgErr(this)" alt="">`;
-  }
+// map marker: a full campy shark adrift in a field of blood + body parts.
+function markerHTML(s, hot) {
+  const flip = bearingWest(s) ? -1 : 1;
+  const ping = hot ? '#e6201c' : '#2fb6b6';
   return `
     <div class="sbody">
-      <div class="chum"></div>
-      ${inner}
-      ${hot ? '<span class="drip"></span>' : ''}
-      <span class="pulse" style="--pc:${hot ? '#e6201c' : '#2fb6b6'}"></span>
+      <svg class="smarksvg" viewBox="-72 -58 144 116" width="100%" height="100%" overflow="visible">
+        ${goreField(s.id)}
+        <circle class="pulse" cx="0" cy="0" r="3.4" fill="none" stroke="${ping}" stroke-width="1.2"/>
+        <circle cx="0" cy="0" r="1.8" fill="${ping}"/>
+        <g transform="translate(6,0)"><g transform="scale(${flip},1)">
+          <g class="sharkwrap">${sharkSVG(0.82, hot)}</g>
+        </g></g>
+      </svg>
     </div>
     <div class="nm">${(s.name || 'Unknown').toUpperCase()}</div>`;
 }
@@ -134,14 +102,9 @@ function render() {
     const sel = selId === s.id;
     if (showTrails && s.pings.length > 1) addTrail(s);
 
-    let head = 0;
-    if (s.pings.length > 1) {
-      const a = s.pings[s.pings.length - 2], b = lp;
-      head = bearing([+a.latitude, +a.longitude], [+b.latitude, +b.longitude]);
-    }
     const icon = L.divIcon({
       className: 'smark' + (sel ? ' sel' : '') + (hot ? ' hot' : ''),
-      html: markerHTML(s, hot, head), iconSize: [70, 70], iconAnchor: [35, 35],
+      html: markerHTML(s, hot), iconSize: [132, 106], iconAnchor: [66, 53],
     });
     const m = L.marker([+lp.latitude, +lp.longitude], { icon, riseOnHover: true }).addTo(markersLayer);
     m.on('click', () => select(s.id));

@@ -80,3 +80,78 @@ function bearingWest(s) {
   if (!p || p.length < 2) return false;
   return (+p[p.length - 1].longitude) < (+p[p.length - 2].longitude);
 }
+
+// ---- floating body parts (campy chum) ----------------------------------
+// each returns small SVG art centered on (0,0); goreField() places + animates it.
+function partArm() {
+  return `<g>
+    <path d="M-8 0 C-3 -3 5 -3 10 0 C13 2 15 1 17 0" fill="none" stroke="url(#gSkin)" stroke-width="4.2" stroke-linecap="round"/>
+    <path d="M17 0 l3 -2 m-3 2 l3.4 0 m-3.4 1 l3 2" stroke="url(#gSkin)" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+    <circle cx="-8" cy="0" r="2.7" fill="#7d0a10"/><circle cx="-8" cy="0" r="1.2" fill="#f0ead8"/>
+  </g>`;
+}
+function partLeg() {
+  return `<g>
+    <path d="M-9 -3 C-3 -2 5 0 11 4 C12 5 12 6 12 8" fill="none" stroke="url(#gSkin)" stroke-width="4.6" stroke-linecap="round"/>
+    <path d="M10 9 q6 0 8 2 q-1 2.4 -4.5 2.4 q-3.5 0 -4.5 -2.4 Z" fill="url(#gSkin)" stroke="#a9744f" stroke-width=".4"/>
+    <circle cx="-9" cy="-3" r="2.9" fill="#7d0a10"/><circle cx="-9" cy="-3" r="1.3" fill="#f0ead8"/>
+  </g>`;
+}
+function partBone() {
+  return `<g fill="url(#gBone)" stroke="#b3ab95" stroke-width=".4">
+    <circle cx="-7" cy="-2.2" r="2.4"/><circle cx="-7" cy="2.2" r="2.4"/>
+    <rect x="-7" y="-1.7" width="14" height="3.4" rx="1.6"/>
+    <circle cx="7" cy="-2.2" r="2.4"/><circle cx="7" cy="2.2" r="2.4"/>
+  </g>`;
+}
+function partFlesh() {
+  return `<g>
+    <path d="M0 -5 q6 -1 7 4 q1 5 -4 6.2 q-7 1 -8.2 -4 q-1.2 -5.2 5.2 -6.2 Z" fill="url(#gFlesh)" stroke="#54060c" stroke-width=".5"/>
+    <circle cx="-1" cy="0" r="1" fill="#3a0509"/><circle cx="3" cy="2" r=".8" fill="#7d0a10"/>
+    <path d="M-3 -2 q3 1 5 4" stroke="#e0707a" stroke-width=".4" fill="none" opacity=".5"/>
+  </g>`;
+}
+function partEye() {
+  return `<g>
+    <path d="M0 1 q-6 3 -11 8" stroke="#9c1118" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <circle cx="0" cy="0" r="3.5" fill="url(#gEye)" stroke="#c4c4ba" stroke-width=".4"/>
+    <circle cx="0" cy="0" r="1.6" fill="#1f3f72"/><circle cx="0" cy="0" r=".7" fill="#070a0b"/>
+    <path d="M-2.4 -2 q-.8 1 -.8 2 M2.4 1.6 q.8 -.8 .8 -1.8" stroke="#c0202a" stroke-width=".3" fill="none"/>
+  </g>`;
+}
+function partRib() {
+  return `<g fill="none">
+    <path d="M-5 -6 v12" stroke="#cfc8b5" stroke-width="1.8" stroke-linecap="round"/>
+    <path d="M-5 -5 q8 1 9 9" stroke="url(#gBone)" stroke-width="1.3"/>
+    <path d="M-5 -1 q7 1 8 8" stroke="url(#gBone)" stroke-width="1.3"/>
+    <path d="M-5 3 q6 1 6.5 6" stroke="url(#gBone)" stroke-width="1.3"/>
+  </g>`;
+}
+const GORE_PARTS = [partArm, partLeg, partBone, partFlesh, partEye, partRib, partFlesh, partArm];
+
+// chum cloud + drifting limbs + rising blood, seeded per shark so it's stable
+function goreField(seed) {
+  const rng = mulberry((seed * 101 + 7) >>> 0);
+  let s = `<ellipse class="chum" cx="0" cy="3" rx="44" ry="27" fill="url(#chum)"/>`;
+  const n = 4 + Math.floor(rng() * 2);
+  for (let i = 0; i < n; i++) {
+    const ang = rng() * Math.PI * 2;
+    const rad = 24 + rng() * 22;
+    const x = (Math.cos(ang) * rad).toFixed(1);
+    const y = (Math.sin(ang) * rad * 0.72).toFixed(1);
+    const rot = (rng() * 360).toFixed(0);
+    const sc = (0.8 + rng() * 0.6).toFixed(2);
+    const d = (rng() * 3).toFixed(1);
+    const art = GORE_PARTS[Math.floor(rng() * GORE_PARTS.length)]();
+    s += `<g transform="translate(${x},${y}) rotate(${rot}) scale(${sc})">`
+       + `<ellipse class="bloodpool" cx="0" cy="1.5" rx="7" ry="3.6" fill="#6e060b" opacity=".5"/>`
+       + `<g class="gpart" style="animation-delay:${d}s">${art}</g></g>`;
+  }
+  for (let i = 0; i < 6; i++) {
+    const x = (rng() * 64 - 32).toFixed(1);
+    const r = (0.7 + rng() * 1).toFixed(1);
+    const d = (rng() * 3.4).toFixed(1);
+    s += `<circle class="bbit" cx="${x}" cy="20" r="${r}" fill="#9c1118" style="animation-delay:${d}s"/>`;
+  }
+  return s;
+}
