@@ -1,36 +1,33 @@
-# Shark marker images
+# Shark images
 
-Drop your photoreal shark PNGs here and the map markers use them automatically.
-Until a matching file exists, each marker falls back to the built-in vector shark,
-so the app always works.
+Two separate, optional jobs — both fall back gracefully, so the app always works:
 
-## File names (most specific wins)
+| role | file | format | shows up as |
+|------|------|--------|-------------|
+| **map marker** | `<id\|species\|default>.png` | **transparent PNG only** | a real shark in the water (no frame), floating in the gore field, animated |
+| **dossier portrait** | `<id\|species\|default>.<any>` | png/webp/jpg/gif | the big case-file photo when you select a shark |
 
-For each shark the app looks for, in order (each name is tried as `.png`, `.webp`,
-`.gif`, then `.svg`):
+## Map marker — transparent PNG
 
-1. `assets/sharks/<id>.*`        — one specific shark (e.g. `1.png` = Mary Lee)
-2. `assets/sharks/<species>.*`   — `white.*`, `tiger.*`, `mako.*`
-3. `assets/sharks/default.*`     — catch-all
-4. built-in vector shark         — if none of the above load
+The marker looks for, in order: `<id>.png` → `<species>.png` → `default.png`,
+else the built-in vector shark. Species names are `white`, `tiger`, `mako`.
+The quickest win: add **`white.png`** (the demo pod is mostly white sharks).
 
-The quickest win: add **`white`**, **`tiger`**, **`mako`** (the demo pod is mostly
-white sharks).
+- **Must be a transparent PNG** — the background erased (checkerboard transparency,
+  just the shark). A photo *with* its ocean/sky baked in will look like a pasted
+  rectangle; the whole point is a clean cut-out so it sits in the real water.
+- Easiest way to make one: drop your image on **remove.bg** or **photopea.com**
+  ("Select Subject" / "Remove background"), export PNG. Or grab a "great white PNG"
+  that's already transparent.
+- **View:** a side-on or 3/4 monster shot reads best at marker size. ~256–512 px,
+  facing **right** (the app mirrors it to match travel direction).
+- **Don't pre-bloody it** — blood cloud, drips, glow and floating body parts are
+  added in code.
 
-## Image guidelines
+## Dossier portrait — any photo
 
-- **Format:** PNG, WebP, GIF, or SVG — anything with a **transparent background**
-  (cut out, no sea/sky). **Not JPG** — it can't do transparency, so it'd show as a
-  rectangular tile.
-- **View:** **top-down** (looking straight down at the shark from above). The marker
-  is rotated to point along the shark's direction of travel, so a top-down body
-  reads correctly as it turns. Side-view photos will look tilted when rotated.
-- **Orientation:** nose pointing **up** (toward the top of the image). Rotation is
-  measured as a compass bearing from north, so "up = heading" keeps it accurate.
-- **Size:** roughly square, ~256–512 px. Displayed at ~48 px, so detail beyond that
-  is wasted.
-- **Gore is added in code** (blood cloud, drip, glow on fresh kills) — the source
-  image can be a clean shark; no need to pre-bloody it.
+`<id>.jpg`, `white.webp`, `default.jpg`, etc. Background is fine here; it's a framed
+banner. Used only in the case-file panel when a shark is selected.
 
 ## Licensing
 

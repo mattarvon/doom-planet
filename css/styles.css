@@ -125,6 +125,13 @@ body{
 .smarksvg{overflow:visible;display:block}
 .smark.hot .sharkwrap .body{filter:drop-shadow(0 0 5px rgba(230,32,28,.5))}
 .smark:hover .sharkwrap .body,.smark.sel .sharkwrap .body{filter:drop-shadow(0 0 13px rgba(230,32,28,.95))}
+/* transparent-PNG cutout shark: a real shark sitting in the water, no frame */
+.scutwrap{position:absolute;left:50%;top:50%;width:70px;height:70px;margin:-35px 0 0 -35px;
+  transform:scaleX(var(--flip,1));pointer-events:none}
+.scut{display:block;width:100%;height:100%;object-fit:contain;
+  filter:drop-shadow(0 3px 4px rgba(0,0,0,.7))}
+.smark.hot .scut{filter:drop-shadow(0 0 7px rgba(230,32,28,.6)) drop-shadow(0 3px 4px rgba(0,0,0,.6))}
+.smark:hover .scut,.smark.sel .scut{filter:drop-shadow(0 0 13px rgba(230,32,28,.95))}
 /* every part of the gore rig sets its own transform-box so rotation pivots locally */
 .sharkwrap,.gpart,.chum,.pulse{transform-box:fill-box;transform-origin:center}
 .smark .tail,.smark .jaw,.smark .gdrip,.smark .eye{transform-box:fill-box}
@@ -135,7 +142,7 @@ body{
 .smark:hover .nm,.smark.sel .nm{opacity:1}
 
 @media(prefers-reduced-motion:no-preference){
-  .smark .sharkwrap{animation:swim 3.8s ease-in-out infinite}
+  .smark .sharkwrap,.smark .scut{animation:swim 3.8s ease-in-out infinite}
   .smark .tail{animation:swish 1.5s ease-in-out infinite;transform-origin:88% 50%}
   .smark:hover .tail,.smark.sel .tail{animation-duration:.7s}
   .smark .jaw{animation:gnash 1.2s ease-in-out infinite}

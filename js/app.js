@@ -59,20 +59,43 @@ function setPortrait(s) {
   img.src = srcs[0];
 }
 
+// Marker uses a TRANSPARENT PNG cutout (assets/sharks/<id|species|default>.png) as
+// a real shark-in-the-water when present, else the vector shark. Either way it
+// floats in the gore field. PNGs are probed once at boot (see probeMarkers).
+const PNG_RESOLVED = {};   // shark id -> working png url, or '' = use vector
+function pngSrcs(s) {
+  const key = speciesKey(s.species);
+  return [String(s.id), key, 'default'].map(b => `assets/sharks/${b}.png`);
+}
+function probeImg(url) {
+  return new Promise(res => { const im = new Image(); im.onload = () => res(true); im.onerror = () => res(false); im.src = url; });
+}
+async function probeMarkers() {
+  await Promise.all(SHARKS.map(async s => {
+    for (const u of pngSrcs(s)) { if (await probeImg(u)) { PNG_RESOLVED[s.id] = u; return; } }
+    PNG_RESOLVED[s.id] = '';
+  }));
+}
+
 // map marker: a full campy shark adrift in a field of blood + body parts.
 function markerHTML(s, hot) {
   const flip = bearingWest(s) ? -1 : 1;
   const ping = hot ? '#e6201c' : '#2fb6b6';
+  const url = PNG_RESOLVED[s.id];
+  const photo = typeof url === 'string' && url;
+  const sharkVec = photo ? '' :
+    `<g transform="translate(6,0)"><g transform="scale(${flip},1)"><g class="sharkwrap">${sharkSVG(0.82, hot)}</g></g></g>`;
+  const sharkImg = photo ?
+    `<div class="scutwrap" style="--flip:${flip}"><img class="scut" src="${url}" alt=""></div>` : '';
   return `
     <div class="sbody">
       <svg class="smarksvg" viewBox="-72 -58 144 116" width="100%" height="100%" overflow="visible">
         ${goreField(s.id)}
         <circle class="pulse" cx="0" cy="0" r="3.4" fill="none" stroke="${ping}" stroke-width="1.2"/>
         <circle cx="0" cy="0" r="1.8" fill="${ping}"/>
-        <g transform="translate(6,0)"><g transform="scale(${flip},1)">
-          <g class="sharkwrap">${sharkSVG(0.82, hot)}</g>
-        </g></g>
+        ${sharkVec}
       </svg>
+      ${sharkImg}
     </div>
     <div class="nm">${(s.name || 'Unknown').toUpperCase()}</div>`;
 }
@@ -164,7 +187,8 @@ function boot() {
     o.value = sp; o.textContent = sp.replace(/\s*\(.*\)/, ''); sel.appendChild(o);
   });
   sel.addEventListener('change', render);
-  render();
+  render();                         // vector first, instant
+  probeMarkers().then(render);      // swap in any PNG cutouts once probed
 }
 
 // show the satellite map immediately; populate markers once the feed resolves
