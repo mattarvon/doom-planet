@@ -1,4 +1,4 @@
-# BLOODWATER
+# The Clot
 
 A horror-styled live shark tracker. **Real satellite imagery** color-graded dark
 and bloody, photoreal (or vector-fallback) shark markers, blood-red migration

@@ -1,11 +1,11 @@
-// wordmark.js — builds the blood-drip BLOODWATER title into #mark.
+// wordmark.js — builds the blood-drip "The Clot" title into #mark.
 // Runs immediately; scripts are at end of <body> so #mark exists.
 
 (function () {
-  const word = "BLOODWATER";
-  // drips spread across the title width (Creepster is wide; viewBox is 1040)
-  const drips = [[120,3.4,0],[300,4.8,1.1],[500,3.0,.5],[700,5.0,1.7],[900,3.6,.3]];
-  let d = `<svg viewBox="0 0 1040 130" xmlns="http://www.w3.org/2000/svg" aria-label="BLOODWATER">
+  const word = "THE CLOT";
+  // drips spread under the title (text spans ~6..314 at this size)
+  const drips = [[48,3.4,0],[120,4.8,1.1],[205,3.0,.5],[280,5.0,1.7]];
+  let d = `<svg viewBox="0 0 322 130" xmlns="http://www.w3.org/2000/svg" aria-label="The Clot">
     <defs>
       <linearGradient id="gore" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0" stop-color="#e6201c"/><stop offset=".55" stop-color="#bd0a13"/><stop offset="1" stop-color="#6e060b"/>
