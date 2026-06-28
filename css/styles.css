@@ -61,6 +61,21 @@ body{
   background:radial-gradient(120% 100% at 50% 50%, transparent 55%, rgba(3,4,6,.85) 100%);z-index:3}
 .scanline{position:absolute;inset:0;pointer-events:none;z-index:4;opacity:.06;
   background:repeating-linear-gradient(0deg,#9fe;0 1px,transparent 1px 3px)}
+/* drifting sea mist */
+.fog{position:absolute;inset:-20%;pointer-events:none;z-index:2;opacity:.5;mix-blend-mode:screen;
+  background:
+    radial-gradient(40% 30% at 25% 30%, rgba(120,180,190,.10), transparent 70%),
+    radial-gradient(50% 35% at 75% 65%, rgba(90,150,170,.09), transparent 70%),
+    radial-gradient(35% 40% at 55% 20%, rgba(140,200,210,.07), transparent 70%);}
+/* campy lightning flash over the whole stage */
+.storm{position:absolute;inset:0;pointer-events:none;z-index:4;opacity:0;mix-blend-mode:screen;
+  background:linear-gradient(180deg, rgba(186,222,255,.55), rgba(120,160,200,0) 55%);}
+@media(prefers-reduced-motion:no-preference){
+  .fog{animation:fogdrift 26s ease-in-out infinite}
+  .storm{animation:lightning 9s linear infinite}
+}
+@keyframes fogdrift{0%,100%{transform:translate(0,0)}50%{transform:translate(3%,-2%)}}
+@keyframes lightning{0%,90%,100%{opacity:0}91%{opacity:.75}92.5%{opacity:.05}93.5%{opacity:.55}95%{opacity:0}}
 
 /* controls */
 .controls{
@@ -93,9 +108,10 @@ body{
 
 /* shark marker */
 .shark{cursor:pointer}
-.shark .body{transition:transform .2s ease, filter .2s ease}
-.shark:hover .body{filter:drop-shadow(0 0 10px rgba(230,32,28,.9))}
-.shark.sel .body{filter:drop-shadow(0 0 14px rgba(230,32,28,1))}
+.shark .body{transition:filter .2s ease}
+.shark.hot .body{filter:drop-shadow(0 0 5px rgba(230,32,28,.5))}
+.shark:hover .body{filter:drop-shadow(0 0 11px rgba(230,32,28,.95))}
+.shark.sel .body{filter:drop-shadow(0 0 16px rgba(230,32,28,1))}
 .shark .nm{
   font-size:11px;letter-spacing:.18em;text-transform:uppercase;
   fill:var(--bone);opacity:0;transition:opacity .18s;paint-order:stroke;
@@ -103,14 +119,30 @@ body{
 }
 .shark:hover .nm,.shark.sel .nm{opacity:1}
 .ping-now{fill:var(--artery)}
+
+/* blood-in-the-water cloud under fresh kills */
+.chum{transform-box:fill-box;transform-origin:center}
+
 @media(prefers-reduced-motion:no-preference){
   .pulse{animation:pulse 2.6s ease-out infinite}
   .sweep{animation:spin 7s linear infinite;transform-origin:center}
-  .shark:hover .jaw,.shark.sel .jaw{animation:gnash .5s ease-in-out infinite}
+  /* every shark idles with a slow tail swish; predators in fresh water chomp + glare */
+  .shark .tail{animation:swish 1.5s ease-in-out infinite}
+  .shark:hover .tail,.shark.sel .tail{animation-duration:.7s}
+  .shark.hot .jaw{animation:gnash 1.1s ease-in-out infinite}
+  .shark:hover .jaw,.shark.sel .jaw{animation:gnash .42s ease-in-out infinite}
+  .shark.hot .eye{animation:eyeglow 1.5s ease-in-out infinite}
+  .shark .gdrip{transform-box:fill-box;transform-origin:top center;animation:ooze 3.2s ease-in-out infinite}
+  .shark .bloodbead{transform-box:fill-box;animation:gorefall 3.2s ease-in infinite;opacity:0}
+  .chum{animation:bloom 4.5s ease-in-out infinite;animation-delay:var(--cd,0s)}
 }
 @keyframes pulse{0%{r:4;opacity:.9}100%{r:30;opacity:0}}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes gnash{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(2.2px) rotate(3deg)}}
+@keyframes swish{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(10deg)}}
+@keyframes gnash{0%,100%{transform:rotate(1deg)}50%{transform:rotate(13deg) translateY(.5px)}}
+@keyframes eyeglow{0%,100%{filter:drop-shadow(0 0 1px #ff2a1e)}50%{filter:drop-shadow(0 0 5px #ff2a1e)}}
+@keyframes gorefall{0%,55%{transform:translateY(0);opacity:0}63%{opacity:1}100%{transform:translateY(11px);opacity:0}}
+@keyframes bloom{0%,100%{transform:scale(.82);opacity:.35}50%{transform:scale(1.15);opacity:.7}}
 
 /* dossier */
 .dossier{
