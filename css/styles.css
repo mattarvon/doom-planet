@@ -122,11 +122,12 @@ body{
 .smark{background:none;border:none}
 .sbody{position:absolute;inset:0;transform-origin:50% 50%;transition:transform .18s ease}
 .smark:hover .sbody,.smark.sel .sbody{transform:scale(1.16)}
-.sphoto{position:absolute;left:11px;top:11px;width:48px;height:48px;object-fit:contain;
-  transform:rotate(var(--rot,0deg));transform-origin:50% 50%;
-  filter:drop-shadow(0 2px 3px rgba(0,0,0,.65))}
-.smark.hot .sphoto{filter:drop-shadow(0 0 6px rgba(230,32,28,.55)) drop-shadow(0 2px 3px rgba(0,0,0,.6))}
-.smark:hover .sphoto,.smark.sel .sphoto{filter:drop-shadow(0 0 12px rgba(230,32,28,.95))}
+/* framed photo pin (background-bearing photos are fine inside the frame) */
+.sphoto{position:absolute;left:11px;top:11px;width:48px;height:48px;border-radius:50%;
+  object-fit:cover;object-position:center;background:#0a141b;
+  border:2px solid #39414a;box-shadow:0 2px 5px rgba(0,0,0,.6)}
+.smark.hot .sphoto{border-color:var(--artery);box-shadow:0 0 8px rgba(230,32,28,.7),0 2px 5px rgba(0,0,0,.6)}
+.smark:hover .sphoto,.smark.sel .sphoto{border-color:var(--artery);box-shadow:0 0 13px rgba(230,32,28,.95)}
 .svgfallback{position:absolute;left:6px;top:6px;width:58px;height:58px}
 .smark.hot .svgfallback .body{filter:drop-shadow(0 0 5px rgba(230,32,28,.5))}
 .smark:hover .svgfallback .body,.smark.sel .svgfallback .body{filter:drop-shadow(0 0 12px rgba(230,32,28,.95))}
@@ -173,12 +174,19 @@ body{
   overflow:hidden;
 }
 .dossier.open{transform:translateX(0)}
-.dh{padding:16px 18px 12px;border-bottom:1px solid #142b34;position:relative}
+/* case-file portrait banner (hidden until an image loads) */
+.dphoto{display:none;width:100%;height:140px;object-fit:cover;object-position:center 38%;
+  filter:saturate(1.05) contrast(1.06) brightness(.94);
+  border-bottom:2px solid var(--blood)}
+.dphoto.on{display:block}
+.dossier .x{position:absolute;top:9px;right:11px;z-index:3;cursor:pointer;color:var(--bone);
+  font-size:20px;line-height:1;border:0;background:rgba(6,10,14,.5);border-radius:50%;
+  width:24px;height:24px;text-shadow:0 1px 2px #000}
+.dossier .x:hover{color:var(--artery)}
+.dh{padding:14px 18px 12px;border-bottom:1px solid #142b34;position:relative}
 .dh .sp{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--artery)}
 .dh h2{margin:5px 0 0;font-size:30px;letter-spacing:.02em;font-family:Impact,"Arial Narrow Bold",sans-serif;
   text-transform:uppercase;color:var(--bone)}
-.dh .x{position:absolute;top:12px;right:13px;cursor:pointer;color:var(--ash);font-size:20px;line-height:1;border:0;background:none}
-.dh .x:hover{color:var(--artery)}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#142b34}
 .cell{background:#0a161d;padding:11px 14px}
 .cell .k{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#5f7178}

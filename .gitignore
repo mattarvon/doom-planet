@@ -8,3 +8,11 @@ dist/
 
 # local dev tooling (not part of the project)
 serve.ps1
+
+# shark images stay local — reference/film stills are copyrighted; don't publish.
+# (use `git add -f` for art you actually have the rights to ship)
+assets/sharks/*.png
+assets/sharks/*.jpg
+assets/sharks/*.jpeg
+assets/sharks/*.webp
+assets/sharks/*.gif

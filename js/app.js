@@ -41,11 +41,29 @@ function speciesKey(sp) {
 // formats, then the inline SVG shark. Drop files in assets/sharks/ (e.g.
 // white.png, tiger.webp, mako.png, default.png, or 1.png for a specific shark).
 // Top-down view, nose pointing up, transparent background.
-const IMG_EXTS = ['png', 'webp', 'gif', 'svg'];   // JPG omitted: no transparency
+// markers are framed thumbnails + the dossier shows a big portrait, so a photo's
+// own background is fine here — JPG included.
+const IMG_EXTS = ['png', 'webp', 'jpg', 'jpeg', 'gif', 'svg'];
 const _imgResolved = {};   // shark id -> working url, or '' once we know it's SVG-fallback
 
+function imgSrcs(s) {
+  const key = speciesKey(s.species);
+  const srcs = [];
+  [String(s.id), key, 'default'].forEach(b => IMG_EXTS.forEach(e => srcs.push(`assets/sharks/${b}.${e}`)));
+  return srcs;
+}
 function svgFallbackHTML(hot) {
   return `<div class="svgfallback"><svg viewBox="-70 -42 140 84" width="100%" height="100%">${sharkSVG(1, !!hot)}</svg></div>`;
+}
+// dossier case-file portrait: walk the same image cascade; hide the banner if none load.
+function setPortrait(s) {
+  const img = document.getElementById('d-photo');
+  const srcs = imgSrcs(s);
+  let i = 0;
+  img.classList.remove('on');
+  img.onload = () => img.classList.add('on');
+  img.onerror = () => { i++; if (i < srcs.length) img.src = srcs[i]; else { img.onerror = null; img.removeAttribute('src'); } };
+  img.src = srcs[0];
 }
 function sharkImgOk(img) {
   const id = img.getAttribute('data-id');
@@ -76,10 +94,8 @@ function markerHTML(s, hot, head) {
   } else if (typeof cached === 'string') {
     inner = `<img class="sphoto" style="--rot:${head.toFixed(0)}deg" src="${cached}" alt="">`;
   } else {
-    const key = speciesKey(s.species);
-    const srcs = [];
-    [String(s.id), key, 'default'].forEach(b => IMG_EXTS.forEach(e => srcs.push(`assets/sharks/${b}.${e}`)));
-    inner = `<img class="sphoto" style="--rot:${head.toFixed(0)}deg" src="${srcs[0]}"
+    const srcs = imgSrcs(s);
+    inner = `<img class="sphoto" src="${srcs[0]}"
            data-fallback='${JSON.stringify(srcs.slice(1))}' data-id="${s.id}" data-hot="${hot ? 1 : 0}"
            onload="sharkImgOk(this)" onerror="sharkImgErr(this)" alt="">`;
   }
@@ -152,6 +168,7 @@ function select(id) {
   document.getElementById('d-pings').textContent = s.pings ? s.pings.length : 0;
   document.getElementById('d-pos').textContent = lp ? (Number(lp.latitude).toFixed(2) + ", " + Number(lp.longitude).toFixed(2)) : "—";
   document.getElementById('d-foot').textContent = dd <= 14 ? "Status: actively surfacing" : "Status: gone dark";
+  setPortrait(s);
   dossier.classList.add('open');
   if (map && lp) map.flyTo([+lp.latitude, +lp.longitude], Math.max(map.getZoom(), 5), { duration: .8 });
   render();
