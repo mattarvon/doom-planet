@@ -30,6 +30,9 @@ body{
   background:linear-gradient(180deg, rgba(6,8,11,.85), rgba(6,8,11,0));
   position:relative;z-index:5;
 }
+.brand{display:flex;align-items:center;gap:14px}
+.logoart{height:60px;width:auto;display:block;border:1px solid #5a1418;border-radius:3px;
+  box-shadow:0 0 14px rgba(189,10,19,.45);filter:saturate(1.05) contrast(1.05)}
 .mark{line-height:0}
 .mark svg{display:block;height:62px;width:auto;overflow:visible}
 .tag{
