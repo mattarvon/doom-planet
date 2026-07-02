@@ -1,16 +1,16 @@
-# The Clot
-
-> *Coagulation is inevitable.*
+# Doom Planet
 
 A horror-themed **live planetary telemetry dashboard**. A full-screen satellite
 world map, color-graded dark and bloody, overlaid with real-time data from a
-stack of free public APIs — earthquakes, tornadoes, tides, disasters, space
-weather, air quality, weather, shark sightings — while photoreal megalodons
-prowl the oceans. Campy gore, a dripping-blood [Creepster](https://fonts.google.com/specimen/Creepster)
-wordmark, and a stack of "the world is ending" readouts.
+stack of free public APIs — earthquakes, tornadoes, volcanoes, disasters,
+natural events, tides, space weather, air quality, weather, contagion, shark
+sightings — while photoreal megalodons prowl the oceans. Campy gore, a
+dripping-blood [Creepster](https://fonts.google.com/specimen/Creepster) wordmark,
+and a stack of "the world is ending" readouts.
 
-It started as **BLOODWATER**, a JAWS-flavored shark tracker, and grew into a
-general doom board. Original art and branding; no third-party trademarks.
+It started as **BLOODWATER** (then **The Clot**), a JAWS-flavored shark tracker,
+and grew into a general doom board. Original art and branding; no third-party
+trademarks.
 
 ## Premise
 
@@ -36,11 +36,18 @@ work from the browser (CORS-clean). Keyless unless noted.
 | **Space Weather** | NOAA SWPC | Kp geomagnetic-storm index + solar-wind Bz/Bt (DSCOVR) |
 | **Weather** | Open-Meteo | current conditions at coastal cities |
 | **Sightings** | GBIF | real shark occurrence records (Lamniformes + Carcharhiniformes) |
+| **Events** | NASA EONET | open natural events (wildfires, storms, volcanoes, ice, dust) |
+| **Volcanoes** | USGS HANS | elevated US volcano alert levels (coords baked in) |
+| **Contagion** | disease.sh | cumulative pandemic ledger by country (COVID; reporting wound down) |
+| **Jason** | — | easter-egg marker at the real Camp Crystal Lake filming site |
+
+All map layers are click-to-inspect and can be toggled on/off (top-right control).
 
 ### API access notes
 
 - **Keyless + CORS-clean:** NOAA CO-OPS, USGS, GDACS, NOAA SWPC, Open-Meteo,
-  GBIF, NWS/weather.gov, SPC. These just work in the browser.
+  GBIF, NWS/weather.gov, SPC, NASA EONET, USGS HANS, disease.sh. These just work
+  in the browser.
 - **PurpleAir** needs a free **read** key (develop.purpleair.com). Paste it into
   the AIR box; it's saved to `localStorage` only and never committed.
 - **Won't work client-side** (CORS-blocked → would need a small proxy): OpenSky
@@ -97,7 +104,7 @@ No bundler. Plain scripts share globals and load in order from `index.html`
 | `js/shark.js`      | vector fallback shark SVG, gore-field body parts, heading helper|
 | `js/data.js`       | OCEARCH loader + offshore demo pod + schema helpers             |
 | `js/app.js`        | Leaflet map, shark markers (photo/vector) + gore, trails, dossier, controls, boot |
-| `js/wordmark.js`   | dripping-blood "The Clot" Creepster wordmark                    |
+| `js/wordmark.js`   | dripping-blood "Doom Planet" Creepster wordmark                 |
 | `js/noaa.js`       | NOAA CO-OPS tide stations + fetch                               |
 | `js/purpleair.js`  | PurpleAir PM2.5 (key-gated) + AQI colors                        |
 | `js/dashboard.js`  | tides + air panel render and map layers                        |
@@ -105,6 +112,10 @@ No bundler. Plain scripts share globals and load in order from `index.html`
 | `js/seismo.js`     | dripping-blood canvas seismograph + quake readout + epicenters |
 | `js/blocks.js`     | GDACS hazards, SWPC space weather, Open-Meteo weather, GBIF sightings |
 | `js/tornado.js`    | NWS Tornado Warnings + SPC reports, funnel markers             |
+| `js/extras.js`     | NASA EONET events, USGS volcano alerts, disease.sh contagion   |
+| `js/jason.js`      | Camp Crystal Lake easter-egg marker + lore                     |
+| `js/inspector.js`  | universal click-to-inspect panel for any map feature           |
+| `js/layers.js`     | overlay toggle control (show/hide each map layer)              |
 | `css/styles.css`   | everything visual: color-grade, panel, animations, reduced-motion |
 
 The demo-pod shark tracks are synthetic random walks, biased seaward so they stay

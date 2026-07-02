@@ -2,10 +2,10 @@
 // Runs immediately; scripts are at end of <body> so #mark exists.
 
 (function () {
-  const word = "THE CLOT";
-  // drips spread under the title (text spans ~6..314 at this size)
-  const drips = [[48,3.4,0],[120,4.8,1.1],[205,3.0,.5],[280,5.0,1.7]];
-  let d = `<svg viewBox="0 0 322 130" xmlns="http://www.w3.org/2000/svg" aria-label="The Clot">
+  const word = "DOOM PLANET";
+  // drips spread under the title (text spans ~8..479 at this size)
+  const drips = [[50,3.4,0],[150,4.8,1.1],[255,3.0,.5],[355,5.0,1.7],[445,3.6,.3]];
+  let d = `<svg viewBox="0 0 488 130" xmlns="http://www.w3.org/2000/svg" aria-label="Doom Planet">
     <defs>
       <linearGradient id="gore" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0" stop-color="#e6201c"/><stop offset=".55" stop-color="#bd0a13"/><stop offset="1" stop-color="#6e060b"/>

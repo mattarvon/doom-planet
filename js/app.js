@@ -152,7 +152,6 @@ function select(id) {
   if (typeof closeInspector === "function") closeInspector();   // dossier + inspector are mutually exclusive
   const s = SHARKS.find(x => x.id === id); if (!s) { render(); return; }
   const lp = lastPing(s); const t = parseTz(lp?.tz_datetime); const dd = daysAgo(t);
-  document.getElementById('hint').style.display = 'none';
   document.getElementById('d-sp').textContent = (s.species || "").replace(/\s*\(.*\)/, '') || "Shark";
   document.getElementById('d-name').textContent = s.name || "Unknown";
   document.getElementById('d-len').textContent = s.length || "—";
@@ -171,7 +170,6 @@ function select(id) {
 }
 document.getElementById('dx').addEventListener('click', () => {
   dossier.classList.remove('open'); selId = null;
-  document.getElementById('hint').style.display = '';
   render();
 });
 
