@@ -55,8 +55,8 @@ function setPortrait(s) {
   let i = 0;
   img.classList.remove('on');
   img.onload = () => img.classList.add('on');
-  img.onerror = () => { i++; if (i < srcs.length) img.src = srcs[i]; else { img.onerror = null; img.removeAttribute('src'); } };
-  img.src = srcs[0];
+  img.onerror = () => { i++; if (i < srcs.length) img.src = assetUrl(srcs[i]); else { img.onerror = null; img.removeAttribute('src'); } };
+  img.src = assetUrl(srcs[0]);
 }
 
 // Marker uses a TRANSPARENT PNG cutout (assets/sharks/<id|species|default>.png) as
@@ -82,7 +82,10 @@ async function probeUrl(u) {
 async function probeMarkers() {
   for (const s of SHARKS) {
     PNG_RESOLVED[s.id] = '';
-    for (const u of pngSrcs(s)) { if (await probeUrl(u)) { PNG_RESOLVED[s.id] = u; break; } }
+    for (const u of pngSrcs(s)) {
+      if (window.EMBEDDED_IMAGES && EMBEDDED_IMAGES[u]) { PNG_RESOLVED[s.id] = EMBEDDED_IMAGES[u]; break; }  // bundled
+      if (await probeUrl(u)) { PNG_RESOLVED[s.id] = u; break; }
+    }
   }
 }
 

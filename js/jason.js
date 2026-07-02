@@ -47,7 +47,7 @@ function initJason() {
   if (typeof map === "undefined" || !map) return;
   const icon = L.divIcon({
     className: "jason",
-    html: `<img class="jimg" src="assets/sharks/jason.png" alt="" onerror="this.parentNode.innerHTML=jasonMaskSVG()">`,
+    html: `<img class="jimg" src="${assetUrl('assets/sharks/jason.png')}" alt="" onerror="this.parentNode.innerHTML=jasonMaskSVG()">`,
     iconSize: [54, 56], iconAnchor: [27, 30],
   });
   jasonLayer = L.layerGroup().addTo(map);
