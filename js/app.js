@@ -166,6 +166,7 @@ function select(id) {
   document.getElementById('d-pings').textContent = s.pings ? s.pings.length : 0;
   document.getElementById('d-pos').textContent = lp ? (Number(lp.latitude).toFixed(2) + ", " + Number(lp.longitude).toFixed(2)) : "—";
   document.getElementById('d-foot').textContent = dd <= 14 ? "Status: actively surfacing" : "Status: gone dark";
+  document.getElementById('d-bio').textContent = s.bio || "No record. Assume the worst.";
   setPortrait(s);
   dossier.classList.add('open');
   if (map && lp) map.flyTo([+lp.latitude, +lp.longitude], Math.max(map.getZoom(), 5), { duration: .8 });

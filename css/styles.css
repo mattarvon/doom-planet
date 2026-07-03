@@ -257,9 +257,15 @@ body{
   border:1px solid #1d3a44;border-left:3px solid var(--blood);
   border-radius:3px;box-shadow:0 24px 60px rgba(0,0,0,.6);
   transform:translateX(120%);transition:transform .32s cubic-bezier(.2,.7,.2,1);
-  overflow:hidden;
+  overflow:hidden auto;max-height:calc(100% - 28px);
 }
 .dossier.open{transform:translateX(0)}
+/* shark rap sheet */
+.biobox{padding:12px 16px 4px;border-top:1px solid #142b34}
+.biobox .k{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--artery);margin-bottom:5px}
+.biotext{font-size:12px;line-height:1.6;color:#c7ccca}
+.biotext::first-letter{font-size:22px;font-family:Impact,sans-serif;color:var(--artery);float:left;
+  line-height:1;padding:1px 5px 0 0}
 /* universal inspector panel — same slot/skin as the dossier */
 .inspector{
   position:absolute;top:14px;right:14px;z-index:7;width:320px;max-width:calc(100% - 28px);
