@@ -190,7 +190,7 @@ document.getElementById('swRecent').addEventListener('click', e => {
 // ---------- boot ----------
 function boot() {
   const feed = document.getElementById('feed'), ft = document.getElementById('feedtxt');
-  if (LIVE) { feed.classList.add('live'); ft.textContent = "Live feed · OCEARCH"; }
+  if (LIVE) { feed.classList.add('live'); ft.textContent = "Live · " + (typeof FEED_LABEL !== "undefined" && FEED_LABEL ? FEED_LABEL : "feed"); }
   else { feed.classList.add('demo'); ft.textContent = "Demo pod · no live feed"; }
 
   const sel = document.getElementById('sp');

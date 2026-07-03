@@ -71,17 +71,64 @@ const MOCK=[
     bio:"The 45-mph motormouth. 'You know what they call a Royale with Cheese at forty-five miles an hour? GONE.' — Riptide, mid-heist, mouth full of someone's cooler. He plans the panty raids, takes none of the blame, and narrates his own kills in the third person like a trailer voiceover. Stolen to date: a GoPro (posted the footage, it SLAPPED), a six-pack (shotgunned two cans — fins, somehow), and the entire anchor line of a honeymoon charter, purely to watch the newlyweds drift toward international waters. Bit a propeller off to hear the noise. Did it again because the first noise slapped. Montauk fishermen don't tell Riptide stories at the bar — Riptide tells fishermen stories. They're all very short. He does the voices."},
 ];
 
+let FEED_LABEL = "";
+
+// place each pod persona at the most recent REAL sighting of its species (GBIF).
+// The characters are fiction; the positions and dates are live occurrence data.
+async function loadGbifPod(){
+  const KEYS = { white: 2420694, tiger: 2418234, mako: 5216248 };   // GBIF taxa
+  // ONE combined request (GBIF accepts repeated taxon_key) — multiple queries
+  // trip their per-client 429 rate limit, a single call doesn't.
+  const fetchJson = async u => {
+    for (let a = 0; a < 3; a++) {
+      const r = await fetch(u);
+      if (r.ok) return (await r.json()).results || [];
+      await new Promise(res => setTimeout(res, 1500 * (a + 1)));
+    }
+    throw 0;
+  };
+  const base = "https://api.gbif.org/v1/occurrence/search?hasCoordinate=true&year=2024,2026";
+  const all = await fetchJson(`${base}&taxon_key=${KEYS.white}&taxon_key=${KEYS.tiger}&taxon_key=${KEYS.mako}&limit=300`);
+  const bySpecies = k => all.filter(x => x.speciesKey === k || x.taxonKey === k || x.acceptedTaxonKey === k);
+  const w = bySpecies(KEYS.white), t = bySpecies(KEYS.tiger), m = bySpecies(KEYS.mako);
+  const clean = arr => {
+    const seen = new Set();
+    return arr
+      .filter(x => x.eventDate && Number.isFinite(x.decimalLatitude) && Number.isFinite(x.decimalLongitude))
+      .sort((a, b) => new Date(b.eventDate) - new Date(a.eventDate))
+      .filter(x => { const k = x.decimalLatitude.toFixed(1) + "," + x.decimalLongitude.toFixed(1); if (seen.has(k)) return false; seen.add(k); return true; });
+  };
+  const W = clean(w), T = clean(t), M = clean(m);
+  if (W.length < 10) throw 0;                    // need enough real records to seat the pod
+  const at = (p, rec) => ({ ...p,
+    pings: [{ latitude: String(rec.decimalLatitude), longitude: String(rec.decimalLongitude), tz_datetime: fmtTz(new Date(rec.eventDate)) }],
+    sighting: { where: rec.locality || rec.country || rec.countryCode || "open water", basis: rec.basisOfRecord, dataset: rec.datasetName },
+  });
+  // tiger/mako personas take their species' newest record when one exists,
+  // otherwise they sit at a (real) white-shark record instead of sinking the feed
+  let wi = 0;
+  const next = () => W[Math.min(wi++, W.length - 1)];
+  return MOCK.map(p => p.species === TG ? at(p, T.length ? T[0] : next())
+                     : p.species === MK ? at(p, M.length ? M[0] : next())
+                     : at(p, next()));
+}
+
 async function load(){
+  // 1) legacy OCEARCH endpoint (currently returns their SPA, i.e. dead — cheap to try)
   try{
     const c=new AbortController();
-    const t=setTimeout(()=>c.abort(),4500);
+    const t=setTimeout(()=>c.abort(),3000);
     const r=await fetch(OCEARCH,{signal:c.signal});
     clearTimeout(t);
     if(!r.ok) throw 0;
     const j=await r.json();
-    if(Array.isArray(j)&&j.length&&j[0].pings){ SHARKS=j; LIVE=true; }
-    else throw 0;
-  }catch(e){
-    SHARKS=MOCK; LIVE=false;
-  }
+    if(Array.isArray(j)&&j.length&&j[0].pings){ SHARKS=j; LIVE=true; FEED_LABEL="OCEARCH"; return; }
+    throw 0;
+  }catch(e){}
+  // 2) live GBIF occurrence data — real recent shark sightings drive the pod
+  try{
+    SHARKS = await loadGbifPod(); LIVE = true; FEED_LABEL = "GBIF sightings"; return;
+  }catch(e){}
+  // 3) offline demo pod
+  SHARKS = MOCK; LIVE = false; FEED_LABEL = "";
 }
