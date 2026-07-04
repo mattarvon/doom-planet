@@ -243,13 +243,14 @@ body{
 .dsplash,.ddrip{opacity:0}
 @media(prefers-reduced-motion:no-preference){
   .smark .sharkwrap,.smark .scut{animation:swim 3.8s ease-in-out infinite}
-  .dflop{animation:dflop .42s ease-in-out infinite}
-  .dtip{animation:dtip .42s ease-in-out infinite}
-  .dsack{animation:djig .42s ease-in-out infinite}
-  .dsplash{animation:dsplash .42s ease-out infinite}
-  .dsplash.s2{animation-delay:.21s}
-  .ddrip{animation:ddriploop 1.6s ease-in infinite}
-  .ddrip.d2{animation-delay:.6s}
+  /* --fd (set per gore part) desyncs each flopper so they don't flap in formation */
+  .dflop{animation:dflop .42s ease-in-out infinite;animation-delay:var(--fd,0s)}
+  .dtip{animation:dtip .42s ease-in-out infinite;animation-delay:var(--fd,0s)}
+  .dsack{animation:djig .42s ease-in-out infinite;animation-delay:var(--fd,0s)}
+  .dsplash{animation:dsplash .42s ease-out infinite;animation-delay:var(--fd,0s)}
+  .dsplash.s2{animation-delay:calc(var(--fd,0s) + .21s)}
+  .ddrip{animation:ddriploop 1.6s ease-in infinite;animation-delay:var(--fd,0s)}
+  .ddrip.d2{animation-delay:calc(var(--fd,0s) + .6s)}
   .smark .tail{animation:swish 1.5s ease-in-out infinite;transform-origin:88% 50%}
   .smark:hover .tail,.smark.sel .tail{animation-duration:.7s}
   .smark .jaw{animation:gnash 1.2s ease-in-out infinite}

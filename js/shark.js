@@ -158,13 +158,13 @@ function partDick() {
     <path class="ddrip d2" d="M-3 6.6 q-.8 2.6 0 4.4 q.8 -1.8 0 -4.4 Z" fill="#a30912"/>
   </g>`;
 }
-const GORE_PARTS = [partArm, partLeg, partBone, partFlesh, partEye, partRib, partDick, partFlesh, partArm];
+const GORE_PARTS = [partArm, partDick, partLeg, partBone, partFlesh, partDick, partEye, partRib, partDick, partFlesh, partArm];
 
 // chum cloud + drifting limbs + rising blood, seeded per shark so it's stable
 function goreField(seed) {
   const rng = mulberry((seed * 101 + 7) >>> 0);
   let s = `<ellipse class="chum" cx="0" cy="3" rx="44" ry="27" fill="url(#chum)"/>`;
-  const n = 4 + Math.floor(rng() * 2);
+  const n = 5 + Math.floor(rng() * 3);
   for (let i = 0; i < n; i++) {
     const ang = rng() * Math.PI * 2;
     const rad = 24 + rng() * 22;
@@ -176,7 +176,7 @@ function goreField(seed) {
     const art = GORE_PARTS[Math.floor(rng() * GORE_PARTS.length)]();
     s += `<g transform="translate(${x},${y}) rotate(${rot}) scale(${sc})">`
        + `<ellipse class="bloodpool" cx="0" cy="1.5" rx="7" ry="3.6" fill="#6e060b" opacity=".5"/>`
-       + `<g class="gpart" style="animation-delay:${d}s">${art}</g></g>`;
+       + `<g class="gpart" style="animation-delay:${d}s;--fd:${(rng() * 0.4).toFixed(2)}s">${art}</g></g>`;
   }
   for (let i = 0; i < 6; i++) {
     const x = (rng() * 64 - 32).toFixed(1);
