@@ -236,6 +236,9 @@ body{
   transition:opacity .18s;text-shadow:0 0 3px #05080a,0 0 3px #05080a;pointer-events:none}
 .smark:hover .nm,.smark.sel .nm{opacity:1}
 
+/* the shark-mounted flopper (photo markers): dangles off the belly */
+.sdick{position:absolute;left:50%;top:60%;width:26px;height:17px;margin-left:-13px;
+  overflow:visible;pointer-events:none}
 /* "deck flop" gore part rig — hinge at the base, follow-through, sack jiggle */
 .dflop{transform-box:fill-box;transform-origin:0% 50%}
 .dtip{transform-box:fill-box;transform-origin:10% 50%}

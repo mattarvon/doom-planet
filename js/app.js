@@ -98,7 +98,8 @@ function markerHTML(s, hot) {
   const sharkVec = photo ? '' :
     `<g transform="translate(6,0)"><g transform="scale(${flip},1)"><g class="sharkwrap">${sharkSVG(0.82, hot)}</g></g></g>`;
   const sharkImg = photo ?
-    `<div class="scutwrap" style="--flip:${flip}"><img class="scut" src="${url}" alt=""></div>` : '';
+    `<div class="scutwrap" style="--flip:${flip}"><img class="scut" src="${url}" alt="">` +
+    `<svg class="sdick" viewBox="-18 -11 36 24" style="--fd:${(s.id % 7) * 0.06}s">${partDick()}</svg></div>` : '';
   return `
     <div class="sbody">
       <svg class="smarksvg" viewBox="-72 -58 144 116" width="100%" height="100%" overflow="visible">

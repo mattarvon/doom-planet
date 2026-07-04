@@ -26,6 +26,8 @@ function sharkSVG(scale, hot) {
     </g>
     <!-- pelvic + pectoral fins -->
     <path d="M-18 8 Q-23 17 -12 15 Q-14 10 -18 8 Z" fill="url(#gDorsal)" stroke="#0f1319" stroke-width=".4"/>
+    <!-- the shark's own deck-flopper, mounted at the belly -->
+    <g class="sdickv" style="--fd:${((scale * 100) % 4) * 0.09}s" transform="translate(-6,10) scale(.55)">${partDick()}</g>
     <path d="M-2 6 Q-15 27 11 20 Q6 11 -2 6 Z" fill="url(#gDorsal)" stroke="#0f1319" stroke-width=".4"/>
     <!-- tall dorsal fin -->
     <path d="M-14 -12 Q-3 -41 17 -12 Q0 -15 -14 -12 Z" fill="url(#gDorsal)" stroke="#0c1015" stroke-width=".5"/>
@@ -158,7 +160,8 @@ function partDick() {
     <path class="ddrip d2" d="M-3 6.6 q-.8 2.6 0 4.4 q.8 -1.8 0 -4.4 Z" fill="#a30912"/>
   </g>`;
 }
-const GORE_PARTS = [partArm, partDick, partLeg, partBone, partFlesh, partDick, partEye, partRib, partDick, partFlesh, partArm];
+// (the deck-flopper now rides the sharks themselves — none in the chum)
+const GORE_PARTS = [partArm, partLeg, partBone, partFlesh, partEye, partRib, partFlesh, partArm];
 
 // chum cloud + drifting limbs + rising blood, seeded per shark so it's stable
 function goreField(seed) {
