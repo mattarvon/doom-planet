@@ -129,7 +129,36 @@ function partRib() {
     <path d="M-5 3 q6 1 6.5 6" stroke="url(#gBone)" stroke-width="1.3"/>
   </g>`;
 }
-const GORE_PARTS = [partArm, partLeg, partBone, partFlesh, partEye, partRib, partFlesh, partArm];
+function partDick() {
+  // "The Deck Flop" — the full set, freshly separated, in panicked
+  // fish-out-of-water mode: hinged flop, tip follow-through, sack jiggle,
+  // splashing in its own puddle. The bios promised; the chum delivers.
+  return `<g>
+    <ellipse cx="-4" cy="8" rx="10" ry="3" fill="#6e060b" opacity=".6"/>
+    <g class="dsack">
+      <circle cx="-7" cy="3.4" r="3.7" fill="url(#gSkin)" stroke="#a9744f" stroke-width=".5"/>
+      <circle cx="-2.4" cy="4.6" r="3.3" fill="url(#gSkin)" stroke="#a9744f" stroke-width=".5"/>
+      <path d="M-9 2 q1.5 1.5 0 3 M-4 3.6 q1.4 1.4 0 2.8" stroke="#a9744f" stroke-width=".35" fill="none" opacity=".7"/>
+      <path d="M-10 5 q3 2.6 7 2.2" stroke="#9c1118" stroke-width=".9" fill="none" opacity=".8"/>
+    </g>
+    <g class="dflop">
+      <path d="M-7 -1 q0 -3 3 -3.2 L6 -3.6 q4 -.4 4.8 2.9 q-.8 3.5 -4.8 2.9 L-4 1.6 q-3 -.2 -3 -2.6 Z" fill="url(#gSkin)" stroke="#a9744f" stroke-width=".5"/>
+      <path d="M-5 -3.2 q6 -1.4 10.5 -.6 M-4.5 1 q6 1.2 10 .4" stroke="#9c1118" stroke-width="1" fill="none" opacity=".75"/>
+      <path d="M-2 -3.4 q1 2.6 0 4.8" stroke="#b00710" stroke-width=".8" fill="none" opacity=".8"/>
+      <g class="dtip">
+        <path d="M6 -3.8 q5 .4 5 3.1 q0 2.7 -5 3.1 q2.3 -1.6 2.3 -3.1 q0 -1.5 -2.3 -3.1 Z" fill="#d89a80" stroke="#a9744f" stroke-width=".4"/>
+        <path d="M8 -2.6 q2.4 1.2 2.4 1.9" stroke="#9c1118" stroke-width=".8" fill="none" opacity=".85"/>
+      </g>
+    </g>
+    <path d="M-8.6 -3.4 l1.7 1.3 l-1.7 1.2 l1.7 1.3 l-1.7 1.2" fill="none" stroke="#7d0a10" stroke-width="1.2"/>
+    <circle cx="-8.8" cy="-1.2" r="2.5" fill="#7d0a10"/><circle cx="-8.8" cy="-1.2" r="1" fill="#f0ead8"/>
+    <path class="dsplash" d="M-14 7 l-2 -3 M-12 8 l-1 -3" stroke="#b00710" stroke-width=".8" fill="none"/>
+    <path class="dsplash s2" d="M4 8 l2 -3 M7 7 l1 -2.6" stroke="#b00710" stroke-width=".8" fill="none"/>
+    <path class="ddrip" d="M-8.8 1 q-.9 3 0 5 q.9 -2 0 -5 Z" fill="#b00710"/>
+    <path class="ddrip d2" d="M-3 6.6 q-.8 2.6 0 4.4 q.8 -1.8 0 -4.4 Z" fill="#a30912"/>
+  </g>`;
+}
+const GORE_PARTS = [partArm, partLeg, partBone, partFlesh, partEye, partRib, partDick, partFlesh, partArm];
 
 // chum cloud + drifting limbs + rising blood, seeded per shark so it's stable
 function goreField(seed) {

@@ -236,8 +236,20 @@ body{
   transition:opacity .18s;text-shadow:0 0 3px #05080a,0 0 3px #05080a;pointer-events:none}
 .smark:hover .nm,.smark.sel .nm{opacity:1}
 
+/* "deck flop" gore part rig — hinge at the base, follow-through, sack jiggle */
+.dflop{transform-box:fill-box;transform-origin:0% 50%}
+.dtip{transform-box:fill-box;transform-origin:10% 50%}
+.dsack{transform-box:fill-box;transform-origin:60% 10%}
+.dsplash,.ddrip{opacity:0}
 @media(prefers-reduced-motion:no-preference){
   .smark .sharkwrap,.smark .scut{animation:swim 3.8s ease-in-out infinite}
+  .dflop{animation:dflop .42s ease-in-out infinite}
+  .dtip{animation:dtip .42s ease-in-out infinite}
+  .dsack{animation:djig .42s ease-in-out infinite}
+  .dsplash{animation:dsplash .42s ease-out infinite}
+  .dsplash.s2{animation-delay:.21s}
+  .ddrip{animation:ddriploop 1.6s ease-in infinite}
+  .ddrip.d2{animation-delay:.6s}
   .smark .tail{animation:swish 1.5s ease-in-out infinite;transform-origin:88% 50%}
   .smark:hover .tail,.smark.sel .tail{animation-duration:.7s}
   .smark .jaw{animation:gnash 1.2s ease-in-out infinite}
@@ -257,6 +269,11 @@ body{
 @keyframes bloom{0%,100%{transform:scale(.82);opacity:.4}50%{transform:scale(1.16);opacity:.78}}
 @keyframes gfloat{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-3px) rotate(8deg)}}
 @keyframes brise{0%{transform:translateY(0);opacity:0}20%{opacity:.85}100%{transform:translateY(-26px);opacity:0}}
+@keyframes dflop{0%,100%{transform:rotate(-30deg)}50%{transform:rotate(30deg)}}
+@keyframes dtip{0%,100%{transform:rotate(-18deg)}55%{transform:rotate(20deg)}}
+@keyframes djig{0%,100%{transform:rotate(10deg)}50%{transform:rotate(-11deg)}}
+@keyframes dsplash{0%,40%{opacity:0}55%{opacity:.9}100%{opacity:0;transform:translateY(-6px)}}
+@keyframes ddriploop{0%,30%{opacity:0;transform:translateY(0)}45%{opacity:.95}100%{opacity:0;transform:translateY(13px)}}
 
 /* dossier */
 .dossier{
