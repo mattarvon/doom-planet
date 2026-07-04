@@ -33,6 +33,9 @@ body{
 .brand{display:flex;align-items:center;gap:14px}
 .logoart{height:60px;width:auto;display:block;border:1px solid #5a1418;border-radius:3px;
   box-shadow:0 0 14px rgba(189,10,19,.45);filter:saturate(1.05) contrast(1.05)}
+.eyeball{width:58px;height:58px;flex:0 0 auto;line-height:0}
+.eyeball svg{display:block;width:100%;height:100%;overflow:visible;
+  filter:drop-shadow(0 0 9px rgba(140,20,35,.5))}
 .mark{line-height:0}
 .mark svg{display:block;height:62px;width:auto;overflow:visible}
 .tag{
