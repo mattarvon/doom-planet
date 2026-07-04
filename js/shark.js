@@ -16,7 +16,9 @@ function teethRow(x0, y, x1, dir, n) {
   return s;
 }
 
-function sharkSVG(scale, hot) {
+function sharkSVG(scale, hot, seed = 0) {
+  const fd = ((seed * 137 + 11) % 42) / 100;                 // unique flop phase
+  const fdur = (0.34 + ((seed * 61 + 7) % 22) / 100).toFixed(2);  // unique flop speed
   return `
   <g class="body" transform="scale(${scale})">
     <!-- caudal fin: big lunate megalodon tail -->
@@ -75,7 +77,7 @@ function sharkSVG(scale, hot) {
     ${hot ? `<circle class="bloodbead" cx="42" cy="15" r="1.6" fill="#8c060b"/>` : ``}
     <!-- the shark's own deck-flopper: big, dangling BELOW the belly line so it
          reads against the water instead of camouflaging into the pale belly -->
-    <g class="sdickv" style="--fd:${((scale * 100) % 4) * 0.09}s" transform="translate(-6,19) scale(1.05)">${partDick()}</g>
+    <g class="sdickv" style="--fd:${fd}s;--fdur:${fdur}s" transform="translate(-6,19) scale(1.05)">${partDick()}</g>
   </g>`;
 }
 

@@ -96,10 +96,12 @@ function markerHTML(s, hot) {
   const url = PNG_RESOLVED[s.id];
   const photo = typeof url === 'string' && url;
   const sharkVec = photo ? '' :
-    `<g transform="translate(6,0)"><g transform="scale(${flip},1)"><g class="sharkwrap">${sharkSVG(0.82, hot)}</g></g></g>`;
+    `<g transform="translate(6,0)"><g transform="scale(${flip},1)"><g class="sharkwrap">${sharkSVG(0.82, hot, s.id)}</g></g></g>`;
+  // unique phase + unique speed per shark id — never flaps in formation
+  const fd = ((s.id * 137) % 42) / 100, fdur = (0.34 + ((s.id * 61) % 22) / 100).toFixed(2);
   const sharkImg = photo ?
     `<div class="scutwrap" style="--flip:${flip}"><img class="scut" src="${url}" alt="">` +
-    `<svg class="sdick" viewBox="-18 -11 36 24" style="--fd:${(s.id % 7) * 0.06}s">${partDick()}</svg></div>` : '';
+    `<svg class="sdick" viewBox="-18 -11 36 24" style="--fd:${fd}s;--fdur:${fdur}s">${partDick()}</svg></div>` : '';
   return `
     <div class="sbody">
       <svg class="smarksvg" viewBox="-72 -58 144 116" width="100%" height="100%" overflow="visible">

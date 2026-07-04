@@ -247,12 +247,13 @@ body{
 .dsplash,.ddrip{opacity:0}
 @media(prefers-reduced-motion:no-preference){
   .smark .sharkwrap,.smark .scut{animation:swim 3.8s ease-in-out infinite}
-  /* --fd (set per gore part) desyncs each flopper so they don't flap in formation */
-  .dflop{animation:dflop .42s ease-in-out infinite;animation-delay:var(--fd,0s)}
-  .dtip{animation:dtip .42s ease-in-out infinite;animation-delay:var(--fd,0s)}
-  .dsack{animation:djig .42s ease-in-out infinite;animation-delay:var(--fd,0s)}
-  .dsplash{animation:dsplash .42s ease-out infinite;animation-delay:var(--fd,0s)}
-  .dsplash.s2{animation-delay:calc(var(--fd,0s) + .21s)}
+  /* --fd = phase offset, --fdur = per-shark flop speed: unique combo per shark
+     so no two floppers ever flap in formation (or drift back into it) */
+  .dflop{animation:dflop var(--fdur,.42s) ease-in-out infinite;animation-delay:var(--fd,0s)}
+  .dtip{animation:dtip var(--fdur,.42s) ease-in-out infinite;animation-delay:var(--fd,0s)}
+  .dsack{animation:djig var(--fdur,.42s) ease-in-out infinite;animation-delay:var(--fd,0s)}
+  .dsplash{animation:dsplash var(--fdur,.42s) ease-out infinite;animation-delay:var(--fd,0s)}
+  .dsplash.s2{animation-delay:calc(var(--fd,0s) + var(--fdur,.42s)/2)}
   .ddrip{animation:ddriploop 1.6s ease-in infinite;animation-delay:var(--fd,0s)}
   .ddrip.d2{animation-delay:calc(var(--fd,0s) + .6s)}
   .smark .tail{animation:swish 1.5s ease-in-out infinite;transform-origin:88% 50%}
