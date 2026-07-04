@@ -12,10 +12,23 @@
   function size() { const w = cv.clientWidth || 218, h = cv.clientHeight || 96; cv.width = w * dpr; cv.height = h * dpr; }
   size(); window.addEventListener("resize", size);
 
-  const CREW = 7;                    // assumed crew aboard
-  const L_PER_DAY = CREW * 1.5;      // ~1.5 L of urine per astronaut per day
+  let CREW = 7;                      // live ISS headcount (Launch Library 2), fallback 7
+  const lPerDay = () => CREW * 1.5;  // ~1.5 L of urine per astronaut per day (NASA figure)
   const t0 = Date.now();
   let bubbles = [];
+
+  // live crew count, cached 6h in localStorage (LL2 anonymous tier is rate-limited)
+  (async function crewCount(){
+    try {
+      const cached = JSON.parse(localStorage.getItem("iss_crew") || "null");
+      if (cached && Date.now() - cached.t < 6 * 3600e3) { CREW = cached.n; return; }
+      const j = await (await fetch("https://ll.thespacedevs.com/2.2.0/spacestation/4/")).json();
+      if (Number.isFinite(j.onboard_crew) && j.onboard_crew > 0) {
+        CREW = j.onboard_crew;
+        localStorage.setItem("iss_crew", JSON.stringify({ n: CREW, t: Date.now() }));
+      }
+    } catch (e) {}
+  })();
 
   function fillLevel(now) {          // 45s cycle: fill to ~0.85, snap-recycle to ~0.15
     const p = ((now - t0) % 45000) / 45000;
@@ -74,10 +87,11 @@
   function tick() {
     const el = document.getElementById("piss-rows"); if (!el) return;
     const secs = (Date.now() - t0) / 1000;
-    const liters = secs * (L_PER_DAY / 86400);
+    const liters = secs * (lPerDay() / 86400);   // real rate: ~1.5 L/crew/day
     el.innerHTML =
-      `<div class="airagg" style="color:#f6e23c">${Math.round(fillLevel(Date.now()) * 100)}%<small>tank · ${CREW} crew pissing aboard</small></div>` +
+      `<div class="airagg" style="color:#f6e23c">${Math.round(fillLevel(Date.now()) * 100)}%<small>tank · ${CREW} crew pissing aboard (live count)</small></div>` +
       `<div class="trow"><span class="tn">Reclaimed this session</span><span class="tv" style="color:#f6e23c">${liters.toFixed(2)}<small>L</small></span></div>` +
+      `<div class="trow"><span class="tn">Flow rate</span><span class="tv">${lPerDay().toFixed(1)}<small>L/day</small></span></div>` +
       issLine;
   }
   tick(); setInterval(tick, 1000);
