@@ -73,8 +73,9 @@ function sharkSVG(scale, hot) {
       <path d="M33 -11 l5 1"/><path d="M23 -12 l4 -1"/><path d="M-6 -13 l6 1"/>
     </g>
     ${hot ? `<circle class="bloodbead" cx="42" cy="15" r="1.6" fill="#8c060b"/>` : ``}
-    <!-- the shark's own deck-flopper, mounted at the belly (painted last = on top) -->
-    <g class="sdickv" style="--fd:${((scale * 100) % 4) * 0.09}s" transform="translate(-8,11) scale(.6)">${partDick()}</g>
+    <!-- the shark's own deck-flopper: big, dangling BELOW the belly line so it
+         reads against the water instead of camouflaging into the pale belly -->
+    <g class="sdickv" style="--fd:${((scale * 100) % 4) * 0.09}s" transform="translate(-6,19) scale(1.05)">${partDick()}</g>
   </g>`;
 }
 
