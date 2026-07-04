@@ -26,8 +26,6 @@ function sharkSVG(scale, hot) {
     </g>
     <!-- pelvic + pectoral fins -->
     <path d="M-18 8 Q-23 17 -12 15 Q-14 10 -18 8 Z" fill="url(#gDorsal)" stroke="#0f1319" stroke-width=".4"/>
-    <!-- the shark's own deck-flopper, mounted at the belly -->
-    <g class="sdickv" style="--fd:${((scale * 100) % 4) * 0.09}s" transform="translate(-6,10) scale(.55)">${partDick()}</g>
     <path d="M-2 6 Q-15 27 11 20 Q6 11 -2 6 Z" fill="url(#gDorsal)" stroke="#0f1319" stroke-width=".4"/>
     <!-- tall dorsal fin -->
     <path d="M-14 -12 Q-3 -41 17 -12 Q0 -15 -14 -12 Z" fill="url(#gDorsal)" stroke="#0c1015" stroke-width=".5"/>
@@ -75,6 +73,8 @@ function sharkSVG(scale, hot) {
       <path d="M33 -11 l5 1"/><path d="M23 -12 l4 -1"/><path d="M-6 -13 l6 1"/>
     </g>
     ${hot ? `<circle class="bloodbead" cx="42" cy="15" r="1.6" fill="#8c060b"/>` : ``}
+    <!-- the shark's own deck-flopper, mounted at the belly (painted last = on top) -->
+    <g class="sdickv" style="--fd:${((scale * 100) % 4) * 0.09}s" transform="translate(-8,11) scale(.6)">${partDick()}</g>
   </g>`;
 }
 
