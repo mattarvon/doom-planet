@@ -100,8 +100,11 @@
       </g>
       <ellipse cx="-12" cy="-18" rx="18" ry="10" fill="#fff" opacity=".14" transform="rotate(-24 -12 -18)"/>
       <g class="ebGoreAnim">
-        <ellipse class="ebPuddle" cx="-2" cy="96" rx="${opts.puddle}" ry="4.4" fill="#7a0b10" opacity=".92"/>
-        <ellipse class="ebPuddleCore" cx="-2" cy="95.4" rx="${(opts.puddle*.55).toFixed(1)}" ry="2.5" fill="#9c1118"/>
+        <ellipse cx="${(opts.puddle*.8).toFixed(1)}" cy="97.5" rx="${(opts.puddle*.34).toFixed(1)}" ry="${(opts.puddle*.1+1).toFixed(1)}" fill="#7a0b10" opacity=".7"/>
+        <ellipse cx="${(-opts.puddle*.75).toFixed(1)}" cy="98" rx="${(opts.puddle*.22).toFixed(1)}" ry="${(opts.puddle*.08+.8).toFixed(1)}" fill="#6e060b" opacity=".65"/>
+        <ellipse class="ebPuddle" cx="-2" cy="96" rx="${opts.puddle}" ry="${(opts.puddle*.3).toFixed(1)}" fill="#7a0b10" opacity=".92"/>
+        <ellipse class="ebPuddleCore" cx="-2" cy="95" rx="${(opts.puddle*.6).toFixed(1)}" ry="${(opts.puddle*.18).toFixed(1)}" fill="#9c1118"/>
+        <ellipse cx="-6" cy="94.5" rx="${(opts.puddle*.28).toFixed(1)}" ry="${(opts.puddle*.08).toFixed(1)}" fill="#c22030" opacity=".55"/>
         <circle class="ebDrop" r="2" fill="#b00710" opacity="0"/>
         <circle class="ebDrop" r="2" fill="#a30912" opacity="0"/>
       </g>
@@ -129,7 +132,7 @@
   }
 
   // hero eye: full gore, left of the wordmark
-  makeEye(1337, 58, { roots: 42, depth: 6, iris: 0, puddle: 17 }, brand, brand.lastElementChild);
+  makeEye(1337, 58, { roots: 42, depth: 6, iris: 0, puddle: 30 }, brand, brand.lastElementChild);
 
   // the row: fills the topbar gap right of the logo, one unique eye per slot
   const row = document.getElementById("eyerow");
@@ -144,7 +147,7 @@
     for (let i = 0; i < count; i++){
       const seed = 7001 + i * 131;
       const iris = [0,0,1,0,2,0,1,0,0,2,0,1,0,2][i % 14];
-      makeEye(seed, 44, { roots: 20, depth: 4, iris, puddle: 10 }, row, null);
+      makeEye(seed, 44, { roots: 20, depth: 4, iris, puddle: 20 }, row, null);
     }
   }
   buildRow();
@@ -201,9 +204,9 @@
         d.prev = t;
       }
       const sp = Math.max(0, 1 - (now - e.lastSplash) / 450);
-      e.puddle.setAttribute("rx", (e.basePud + sp * 4).toFixed(2));
-      e.puddle.setAttribute("ry", (4.4 + sp * 1.1).toFixed(2));
-      e.core.setAttribute("rx", (e.basePud * .55 + sp * 2.4).toFixed(2));
+      e.puddle.setAttribute("rx", (e.basePud + sp * e.basePud * .22).toFixed(2));
+      e.puddle.setAttribute("ry", (e.basePud * .3 + sp * e.basePud * .08).toFixed(2));
+      e.core.setAttribute("rx", (e.basePud * .6 + sp * e.basePud * .16).toFixed(2));
     }
     requestAnimationFrame(frame);
   })();
