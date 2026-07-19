@@ -54,6 +54,9 @@
     ".dp-sstcredit{position:absolute;left:16px;bottom:70px;z-index:8;display:none;max-width:240px;",
     "  font:500 10px/1.4 system-ui,sans-serif;color:#6b7278}",
     ".dp-sstcredit b{color:#e6431c;font-weight:700}",
+    ".dp-diag{position:absolute;left:50%;transform:translateX(-50%);bottom:16px;z-index:9;display:none;",
+    "  max-width:80%;font:600 11px/1.5 ui-monospace,monospace;color:#ff5a6a;background:rgba(8,4,6,.9);",
+    "  padding:8px 12px;border:1px solid #7a0b10;border-radius:6px;white-space:pre-wrap}",
   ].join("\n");
   document.head.appendChild(css);
 
@@ -80,52 +83,75 @@
   creditEl.className = "dp-sstcredit";
   stage.appendChild(creditEl);
 
+  // on-page diagnostics (so errors are visible without DevTools)
+  var diagEl = document.createElement("div");
+  diagEl.className = "dp-diag";
+  stage.appendChild(diagEl);
+  var diagMsgs = [];
+  function report(msg) {
+    if (diagMsgs.indexOf(msg) === -1) diagMsgs.push(msg);
+    diagEl.textContent = "GLOBE DIAG — " + diagMsgs.slice(0, 5).join("  |  ");
+    diagEl.style.display = "block";
+    if (window.console && console.error) console.error("[DoomGlobe]", msg);
+  }
+  window.addEventListener("error", function (ev) {
+    if (ev && ev.message) report("err: " + ev.message +
+      (ev.filename ? (" @ " + String(ev.filename).split("/").pop() + ":" + ev.lineno) : ""));
+  });
+  function cfg(label, fn) {
+    try { fn(); } catch (e) { report(label + "() → " + (e && e.message ? e.message : e)); }
+  }
+
   var globe = null, active = false, timer = null, curSkin = "night";
 
   // ---- build the globe once ----
   function build() {
     if (globe) return;
-    globe = Globe()(globeEl)
-      .globeImageUrl(CDN.night)
-      .bumpImageUrl(CDN.bump)
-      .backgroundImageUrl(CDN.sky)
-      .showAtmosphere(true).atmosphereColor("#ff3b3b").atmosphereAltitude(0.17)
-      // shark trails
-      .pathPoints(function (d) { return d.pts; })
-      .pathPointLat(function (p) { return p[0]; })
-      .pathPointLng(function (p) { return p[1]; })
-      .pathColor(function (d) {
-        return (d && d.iss) ? ["rgba(120,200,255,0)", "#8fd6ff"] : ["rgba(230,32,30,0)", "#ff2b4e"];
-      })
-      .pathStroke(1.6).pathDashLength(0.4).pathDashGap(0.18).pathDashAnimateTime(6000)
-      .onPathClick(function (d) { if (d && d.shark && typeof select === "function") select(d.shark.id); })
-      // rings: quakes + volcanoes
-      .ringLat(function (d) { return d.lat; }).ringLng(function (d) { return d.lng; })
-      .ringMaxRadius(function (d) { return d.maxR; })
-      .ringPropagationSpeed(function (d) { return d.speed; })
-      .ringRepeatPeriod(function (d) { return d.period; })
-      .ringColor(function (d) { var c = d.color; return function (t) { return colorFade(c, 1 - t); }; })
-      // points: everything else + shark heads
-      .pointLat(function (d) { return d.lat; }).pointLng(function (d) { return d.lng; })
-      .pointColor(function (d) { return d.color; })
-      .pointAltitude(function (d) { return d.alt; })
-      .pointRadius(function (d) { return d.radius; })
-      .pointLabel(function (d) { return d.tip || ""; })
-      .onPointClick(function (d) {
-        if (!d) return;
-        if (d.sharkId != null && typeof select === "function") { select(d.sharkId); return; }
-        if (d.meta && typeof inspect === "function") inspect(d.meta);
-      })
-      // shark name labels
-      .labelLat(function (d) { return d.lat; }).labelLng(function (d) { return d.lng; })
-      .labelText(function (d) { return d.name; })
-      .labelSize(0.9).labelDotRadius(0.32).labelColor(function () { return "#ff6b7d"; })
-      .labelResolution(1)
-      .onLabelClick(function (d) { if (d && typeof select === "function") select(d.id); });
-
-    var c = globe.controls();
-    c.autoRotate = true; c.autoRotateSpeed = 0.45; c.enableDamping = true;
-    globe.pointOfView({ lat: 30, lng: -50, altitude: 2.4 }, 0);
+    if (typeof Globe !== "function") { report("globe.gl library (Globe) not loaded"); return; }
+    globe = Globe()(globeEl);
+    cfg("globeImageUrl", function () { globe.globeImageUrl(CDN.night); });
+    cfg("bumpImageUrl", function () { globe.bumpImageUrl(CDN.bump); });
+    cfg("backgroundImageUrl", function () { globe.backgroundImageUrl(CDN.sky); });
+    cfg("atmosphere", function () {
+      globe.showAtmosphere(true).atmosphereColor("#ff3b3b").atmosphereAltitude(0.17);
+    });
+    cfg("pathAccessors", function () {
+      globe.pathPoints(function (d) { return d.pts; })
+        .pathPointLat(function (p) { return p[0]; }).pathPointLng(function (p) { return p[1]; })
+        .pathColor(function (d) {
+          return (d && d.iss) ? ["rgba(120,200,255,0)", "#8fd6ff"] : ["rgba(230,32,30,0)", "#ff2b4e"];
+        })
+        .pathStroke(1.6).pathDashLength(0.4).pathDashGap(0.18).pathDashAnimateTime(6000)
+        .onPathClick(function (d) { if (d && d.shark && typeof select === "function") select(d.shark.id); });
+    });
+    cfg("ringAccessors", function () {
+      globe.ringLat(function (d) { return d.lat; }).ringLng(function (d) { return d.lng; })
+        .ringMaxRadius(function (d) { return d.maxR; })
+        .ringPropagationSpeed(function (d) { return d.speed; })
+        .ringRepeatPeriod(function (d) { return d.period; })
+        .ringColor(function (d) { var c = d.color; return function (t) { return colorFade(c, 1 - t); }; });
+    });
+    cfg("pointAccessors", function () {
+      globe.pointLat(function (d) { return d.lat; }).pointLng(function (d) { return d.lng; })
+        .pointColor(function (d) { return d.color; }).pointAltitude(function (d) { return d.alt; })
+        .pointRadius(function (d) { return d.radius; }).pointLabel(function (d) { return d.tip || ""; })
+        .onPointClick(function (d) {
+          if (!d) return;
+          if (d.sharkId != null && typeof select === "function") { select(d.sharkId); return; }
+          if (d.meta && typeof inspect === "function") inspect(d.meta);
+        });
+    });
+    cfg("labelAccessors", function () {
+      globe.labelLat(function (d) { return d.lat; }).labelLng(function (d) { return d.lng; })
+        .labelText(function (d) { return d.name; })
+        .labelSize(0.9).labelDotRadius(0.32).labelColor(function () { return "#ff6b7d"; })
+        .labelResolution(1)
+        .onLabelClick(function (d) { if (d && typeof select === "function") select(d.id); });
+    });
+    cfg("controls", function () {
+      var c = globe.controls(); c.autoRotate = true; c.autoRotateSpeed = 0.45; c.enableDamping = true;
+    });
+    cfg("pov", function () { globe.pointOfView({ lat: 30, lng: -50, altitude: 2.4 }, 0); });
     sizeGlobe();
     window.addEventListener("resize", sizeGlobe);
   }
@@ -274,7 +300,12 @@
     }
 
     lastPoints = points;
-    globe.pathsData(paths).ringsData(rings).pointsData(points).labelsData(labels);
+    cfg("pathsData", function () { globe.pathsData(paths); });
+    cfg("ringsData", function () { globe.ringsData(rings); });
+    cfg("pointsData", function () { globe.pointsData(points); });
+    cfg("labelsData", function () { globe.labelsData(labels); });
+    report("layers set — paths:" + paths.length + " rings:" + rings.length +
+      " points:" + points.length + " labels:" + labels.length);
   }
 
   // ---- ISS (satellite.js TLE propagation) ----
