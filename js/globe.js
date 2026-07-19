@@ -15,6 +15,19 @@
   };
   var SST = "assets/sst/oisst_latest.png";
 
+  // NASA GIBS near-real-time true-color Earth (single global equirect image via WMS)
+  var GIBS_LAYER = "MODIS_Terra_CorrectedReflectance_TrueColor";
+  function gibsUrl() {
+    var d = new Date(Date.now() - 864e5);               // yesterday (GIBS ~1 day latency)
+    var day = d.toISOString().slice(0, 10);
+    return "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS" +
+      "&REQUEST=GetMap&VERSION=1.3.0&LAYERS=" + GIBS_LAYER +
+      "&CRS=EPSG:4326&BBOX=-90,-180,90,180&WIDTH=2048&HEIGHT=1024&FORMAT=image/jpeg&TIME=" + day;
+  }
+
+  var ISS = { rec: null, pt: null, track: null, started: false };
+  var lastPoints = [];
+
   // ---- tiny helpers (defensive: reuse app globals when present) ----
   function num(v) { return typeof v === "number" && isFinite(v); }
   function mag(m) { return (typeof magColor === "function") ? magColor(m) : "#e6201c"; }
@@ -81,7 +94,9 @@
       .pathPoints(function (d) { return d.pts; })
       .pathPointLat(function (p) { return p[0]; })
       .pathPointLng(function (p) { return p[1]; })
-      .pathColor(function () { return ["rgba(230,32,30,0)", "#ff2b4e"]; })
+      .pathColor(function (d) {
+        return (d && d.iss) ? ["rgba(120,200,255,0)", "#8fd6ff"] : ["rgba(230,32,30,0)", "#ff2b4e"];
+      })
       .pathStroke(1.6).pathDashLength(0.4).pathDashGap(0.18).pathDashAnimateTime(6000)
       .onPathClick(function (d) { if (d && d.shark && typeof select === "function") select(d.shark.id); })
       // rings: quakes + volcanoes
@@ -232,6 +247,25 @@
         radius: Math.min(0.2 + Math.sqrt(c.cases) / 4000, 1.1), tip: c.country });
     });
 
+    // aurora oval (NOAA SWPC OVATION): green glow where auroral probability is high
+    try {
+      var av = await fetch("https://services.swpc.noaa.gov/json/ovation_aurora_latest.json");
+      var aj = await av.json();
+      var co = (aj && aj.coordinates) ? aj.coordinates : [];
+      for (var i = 0; i < co.length; i += 2) {           // subsample for perf
+        var v = co[i][2];
+        if (v < 8) continue;
+        var lon = co[i][0]; if (lon > 180) lon -= 360;
+        points.push({ lat: co[i][1], lng: lon, alt: 0.03,
+          radius: 0.12 + v / 260, color: "rgba(56,255,158," + Math.min(0.85, v / 100 + 0.15).toFixed(2) + ")" });
+      }
+    } catch (e) {}
+
+    // ISS: live orbit path + moving marker (computed from TLE via satellite.js)
+    if (ISS.track) paths.push(ISS.track);
+    if (ISS.pt) points.push(ISS.pt);
+    startISS();
+
     // space weather → atmosphere mood
     var sw = await callSafe(typeof loadSpaceWx !== "undefined" ? loadSpaceWx : null);
     if (sw && num(sw.kp)) {
@@ -239,7 +273,49 @@
            .atmosphereAltitude(0.15 + Math.min(sw.kp, 9) * 0.008);
     }
 
+    lastPoints = points;
     globe.pathsData(paths).ringsData(rings).pointsData(points).labelsData(labels);
+  }
+
+  // ---- ISS (satellite.js TLE propagation) ----
+  function geo(rec, when) {
+    if (typeof satellite === "undefined") return null;
+    var pv = satellite.propagate(rec, when);
+    if (!pv || !pv.position) return null;
+    var g = satellite.eciToGeodetic(pv.position, satellite.gstime(when));
+    return { lat: satellite.degreesLat(g.latitude), lng: satellite.degreesLong(g.longitude),
+      altKm: g.height };
+  }
+  function buildTrack(rec) {
+    var pts = [], now = Date.now();
+    for (var m = 0; m <= 94; m += 1.5) {                 // ~one forward orbit
+      var g = geo(rec, new Date(now + m * 60000));
+      if (g) pts.push([g.lat, g.lng]);
+    }
+    return { pts: pts, iss: true };
+  }
+  function tickISS() {
+    if (!ISS.rec || !globe) return;
+    var g = geo(ISS.rec, new Date());
+    if (!g) return;
+    if (!ISS.pt) ISS.pt = { lat: g.lat, lng: g.lng, alt: 0.09, radius: 0.7, color: "#bfe9ff",
+      tip: "ISS · International Space Station" };
+    else { ISS.pt.lat = g.lat; ISS.pt.lng = g.lng; }
+    if (lastPoints.length) globe.pointsData(lastPoints);  // cheap position refresh
+  }
+  function startISS() {
+    if (ISS.started) return; ISS.started = true;
+    fetch("https://celestrak.org/NORAD/elements/gp.php?CATNR=25544&FORMAT=TLE")
+      .then(function (r) { return r.text(); })
+      .then(function (txt) {
+        var L = txt.trim().split(/\r?\n/);
+        if (L.length < 3 || typeof satellite === "undefined") return;
+        ISS.rec = satellite.twoline2satrec(L[1], L[2]);
+        ISS.track = buildTrack(ISS.rec);
+        tickISS();
+        setInterval(function () { if (active) tickISS(); }, 2000);
+        setInterval(function () { if (active && ISS.rec) ISS.track = buildTrack(ISS.rec); }, 60000);
+      }).catch(function () {});
   }
 
   // ---- skins ----
@@ -248,8 +324,11 @@
     if (!globe) return;
     if (k === "sst") {
       globe.globeImageUrl(SST).bumpImageUrl(null);
+      creditEl.innerHTML = ""; creditEl.style.display = "block"; loadSstMeta();
+    } else if (k === "live") {
+      globe.globeImageUrl(gibsUrl()).bumpImageUrl(null);
+      creditEl.innerHTML = "<b>Live Earth</b> — NASA GIBS MODIS true-color, ~24h latency";
       creditEl.style.display = "block";
-      loadSstMeta();
     } else {
       globe.globeImageUrl(CDN.night).bumpImageUrl(CDN.bump);
       creditEl.style.display = "none";
@@ -292,7 +371,8 @@
   }
 
   switcher("dp-view", [{ label: "Map", k: "map" }, { label: "Globe", k: "globe" }], activate);
-  skinSwitch = switcher("dp-skin", [{ label: "Night", k: "night" }, { label: "Bloodwater SST", k: "sst" }], setSkin);
+  skinSwitch = switcher("dp-skin", [{ label: "Night", k: "night" }, { label: "Live Earth", k: "live" },
+    { label: "Bloodwater SST", k: "sst" }], setSkin);
 
   // expose a tiny hook for debugging
   window.DoomGlobe = { refresh: refresh, activate: activate };
