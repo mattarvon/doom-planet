@@ -1,12 +1,15 @@
-// data.js — load order: OCEARCH live feed first, themed demo pod on failure.
-// Globals: SHARKS, LIVE, OCEARCH, load(), parseTz(), lastPing(), daysAgo()
+// data.js — load order: real OCEARCH tracks → GBIF sightings → demo pod.
+// Globals: SHARKS, LIVE, load(), parseTz(), lastPing(), daysAgo()
 //
-// The live endpoint is undocumented and serves plain http, so in most browser
-// contexts it will be blocked by mixed-content / CORS and we fall back to the
-// demo pod. Put a CORS-adding proxy in front of OCEARCH and point this there to
-// light up real data — the render code is schema-identical.
+// The OCEARCH tracker runs on Mapotic. That API is CORS-clean and https, so the
+// browser fetches it DIRECTLY — no proxy, no backend. `pois.geojson/` is the
+// roster; `pois/{id}/motion/with-meta/` is one animal's real ping track. The
+// render code is schema-identical: we map Mapotic → {name,species,…,pings[]}.
 
-const OCEARCH = "https://www.ocearch.org/tracker/ajax/filter-sharks?tracking-activity=ping-most-recent";
+const MAPOTIC = "https://www.mapotic.com/api/v1/";
+const OCEARCH_MAP = 3413;                 // OCEARCH's Mapotic map id
+const OCEARCH_MAX = 24;                    // how many animals to pull tracks for
+const OCEARCH_PINGS = 80;                  // cap pings per shark (newest kept)
 
 let SHARKS = [];
 let LIVE = false;
@@ -71,7 +74,75 @@ const MOCK=[
     bio:"The 45-mph motormouth. 'You know what they call a Royale with Cheese at forty-five miles an hour? GONE.' — Riptide, mid-heist, mouth full of someone's cooler. He plans the panty raids, takes none of the blame, and narrates his own kills in the third person like a trailer voiceover. Stolen to date: a GoPro (posted the footage, it SLAPPED), a six-pack (shotgunned two cans — fins, somehow), and the entire anchor line of a honeymoon charter, purely to watch the newlyweds drift toward international waters. Bit a propeller off to hear the noise. Did it again because the first noise slapped. Montauk fishermen don't tell Riptide stories at the bar — Riptide tells fishermen stories. They're all very short. He does the voices."},
 ];
 
+// The gory personas are fiction. When a REAL OCEARCH animal shares a name with
+// one of them, it inherits that character's bio; every other real shark falls to
+// the built-in "No record. Assume the worst." line. No fabricated tracks — the
+// fiction is only the flavor text, never a coordinate.
+const BIOS = Object.fromEntries(MOCK.map(m => [m.name.toLowerCase(), m.bio]));
+
 let FEED_LABEL = "";
+
+// Format an ISO instant ("2016-09-21T21:32:12Z") into the tz string parseTz reads
+// ("21 Sep 2016 21:32:12 +0000"), in UTC so no local-zone drift creeps in.
+function fmtUtc(iso) {
+  const d = new Date(iso);
+  if (isNaN(d)) return "";
+  const p = n => String(n).padStart(2, "0");
+  return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()} ` +
+         `${p(d.getUTCHours())}:${p(d.getUTCMinutes())}:${p(d.getUTCSeconds())} +0000`;
+}
+
+// Run async jobs with a small concurrency cap (be polite to the API).
+async function pool(items, n, fn) {
+  const out = new Array(items.length);
+  let i = 0;
+  await Promise.all(Array.from({ length: Math.min(n, items.length) }, async () => {
+    while (i < items.length) { const k = i++; out[k] = await fn(items[k], k); }
+  }));
+  return out;
+}
+
+// ---- real OCEARCH feed via Mapotic ----
+async function loadOcearch() {
+  const isShark = sp => /shark|mako|hammerhead/i.test(sp || "");   // this is a megalodon board — no turtles
+  const roster = await (await fetch(`${MAPOTIC}maps/${OCEARCH_MAP}/pois.geojson/`)).json();
+  const feats = (roster.features || [])
+    .filter(f => f.properties && f.properties.last_move_datetime && isShark(f.properties.species))
+    .sort((a, b) => (b.properties.last_move_datetime || "").localeCompare(a.properties.last_move_datetime || ""))
+    .slice(0, OCEARCH_MAX);
+  if (feats.length < 8) throw 0;
+
+  const sharks = await pool(feats, 6, async (f) => {
+    const p = f.properties;
+    let pings = [];
+    try {
+      const md = await (await fetch(`${MAPOTIC}maps/${OCEARCH_MAP}/pois/${p.id}/motion/with-meta/`)).json();
+      pings = (md.motion || [])
+        .filter(m => m.point && m.point.coordinates && m.dt_move)
+        .sort((a, b) => new Date(a.dt_move) - new Date(b.dt_move))    // ascending → lastPing = newest
+        .slice(-OCEARCH_PINGS)
+        .map(m => ({ latitude: String(m.point.coordinates[1]),
+                     longitude: String(m.point.coordinates[0]),
+                     tz_datetime: fmtUtc(m.dt_move) }));
+    } catch (e) { /* fall back to the roster point below */ }
+    if (!pings.length) {
+      const c = (f.geometry && f.geometry.coordinates) || null;
+      if (!c) return null;
+      pings = [{ latitude: String(c[1]), longitude: String(c[0]), tz_datetime: fmtUtc(p.last_move_datetime) }];
+    }
+    return {
+      id: p.id, name: p.name, species: p.species || "Shark",
+      gender: p.gender, stageOfLife: p.stage_of_life,
+      length: p.length, weight: p.weight, tagLocation: p.tag_location,
+      image: p.image || (p.image_data && p.image_data.path) || null,
+      pings, bio: BIOS[(p.name || "").toLowerCase()],
+    };
+  });
+
+  const clean = sharks.filter(Boolean).filter(s => s.pings.length);
+  if (clean.length < 8) throw 0;
+  return clean;
+}
 
 // place each pod persona at the most recent REAL sighting of its species (GBIF).
 // The characters are fiction; the positions and dates are live occurrence data.
@@ -114,16 +185,9 @@ async function loadGbifPod(){
 }
 
 async function load(){
-  // 1) legacy OCEARCH endpoint (currently returns their SPA, i.e. dead — cheap to try)
+  // 1) real OCEARCH tracks via Mapotic (CORS-clean, fetched straight from the browser)
   try{
-    const c=new AbortController();
-    const t=setTimeout(()=>c.abort(),3000);
-    const r=await fetch(OCEARCH,{signal:c.signal});
-    clearTimeout(t);
-    if(!r.ok) throw 0;
-    const j=await r.json();
-    if(Array.isArray(j)&&j.length&&j[0].pings){ SHARKS=j; LIVE=true; FEED_LABEL="OCEARCH"; return; }
-    throw 0;
+    SHARKS = await loadOcearch(); LIVE = true; FEED_LABEL = "OCEARCH"; return;
   }catch(e){}
   // 2) live GBIF occurrence data — real recent shark sightings drive the pod
   try{

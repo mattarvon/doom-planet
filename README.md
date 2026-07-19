@@ -27,7 +27,7 @@ work from the browser (CORS-clean). Keyless unless noted.
 
 | Block | Source | Notes |
 |-------|--------|-------|
-| **Sharks** | OCEARCH (demo-pod fallback) | photoreal megalodon markers in a gore field; follow-cam dossier with case-file photo |
+| **Sharks** | OCEARCH live via Mapotic (map 3413) | real ping tracks + photos, CORS-clean (no proxy); GBIF sightings → demo pod as fallbacks; photoreal megalodon markers, follow-cam dossier |
 | **Tides** | NOAA CO-OPS | 12 coastal gauges, live water level + rising/falling, map markers |
 | **Air · PM2.5** | PurpleAir | **needs a free read key** (stored in `localStorage`); avg + worst sensors + colored dots |
 | **Seismic** | USGS | dripping-blood canvas seismograph + epicenter markers |
@@ -118,9 +118,14 @@ No bundler. Plain scripts share globals and load in order from `index.html`
 | `js/layers.js`     | overlay toggle control (show/hide each map layer)              |
 | `css/styles.css`   | everything visual: color-grade, panel, animations, reduced-motion |
 
-The demo-pod shark tracks are synthetic random walks, biased seaward so they stay
-in open water (the mock has no coastline awareness). Real OCEARCH data, when
-proxied in, replaces them.
+Real OCEARCH tracks now load directly: the tracker runs on Mapotic, whose API is
+CORS-clean and https, so the browser fetches the roster (`pois.geojson/`) and each
+animal's ping track (`pois/{id}/motion/with-meta/`) with no proxy or backend. The
+feed is filtered to sharks (this is a megalodon board), capped at 24 animals /
+80 pings each. GBIF sightings and the synthetic demo pod remain as fallbacks; the
+demo-pod tracks are seaward-biased random walks (the mock has no coastline
+awareness). Persona bios are fiction, attached by name to real animals when they
+match — the coordinates are always real.
 
 ## Where to take it
 

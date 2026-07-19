@@ -45,6 +45,7 @@ const IMG_EXTS = ['png', 'webp', 'jpg', 'jpeg', 'gif', 'svg'];
 function imgSrcs(s) {
   const key = speciesKey(s.species);
   const srcs = [];
+  if (s.image) srcs.push(s.image);   // real OCEARCH photo (remote) leads the cascade
   [String(s.id), key, 'default'].forEach(b => IMG_EXTS.forEach(e => srcs.push(`assets/sharks/${b}.${e}`)));
   return srcs;
 }
