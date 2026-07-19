@@ -16,7 +16,7 @@
   var SST = "assets/sst/oisst_latest.png";
 
   // NASA GIBS near-real-time true-color Earth (single global equirect image via WMS)
-  var GIBS_LAYER = "MODIS_Terra_CorrectedReflectance_TrueColor";
+  var GIBS_LAYER = "VIIRS_SNPP_CorrectedReflectance_TrueColor";  // wide swath → gapless daily coverage
   function gibsUrl() {
     var d = new Date(Date.now() - 864e5);               // yesterday (GIBS ~1 day latency)
     var day = d.toISOString().slice(0, 10);
@@ -173,8 +173,10 @@
 
   // ---- gather live feeds and push to the globe ----
   function callSafe(fn) {
-    try { if (typeof fn === "function") return fn(); } catch (e) {}
-    return Promise.resolve(null);
+    try {
+      if (typeof fn !== "function") return Promise.resolve(null);
+      return Promise.resolve(fn()).catch(function () { return null; });  // swallow async rejections too
+    } catch (e) { return Promise.resolve(null); }
   }
 
   async function refresh() {
