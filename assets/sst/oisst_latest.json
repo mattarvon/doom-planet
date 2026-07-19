@@ -1,0 +1,11 @@
+{
+  "date": "2025-05-09",
+  "source": "NOAA OISST v2.1 CDR",
+  "bucket": "s3://noaa-cdr-sea-surface-temp-optimum-interpolation-pds",
+  "via": "AWS Open Data / RODA",
+  "range_c": [
+    -2.0,
+    32.0
+  ],
+  "generated": "2026-07-19T22:30:47.619794+00:00"
+}
