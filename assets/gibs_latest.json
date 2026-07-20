@@ -1,0 +1,5 @@
+{
+  "date": "2026-06-19",
+  "layer": "VIIRS_SNPP_CorrectedReflectance_TrueColor",
+  "source": "NASA GIBS WMS GetCapabilities"
+}

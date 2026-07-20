@@ -17,12 +17,23 @@
 
   // NASA GIBS near-real-time true-color Earth (single global equirect image via WMS)
   var GIBS_LAYER = "VIIRS_SNPP_CorrectedReflectance_TrueColor";  // wide swath → gapless daily coverage
+  var GIBS_DATE = null, gibsDateLoaded = false;
+  function gibsDay() {
+    var cy = new Date(Date.now() - 864e5).toISOString().slice(0, 10);   // client "yesterday"
+    // never request a date GIBS lacks (renders as a black wedge): use the
+    // earlier of client-yesterday and GIBS's baked latest available date
+    return (GIBS_DATE && cy > GIBS_DATE) ? GIBS_DATE : (GIBS_DATE || cy);
+  }
   function gibsUrl() {
-    var d = new Date(Date.now() - 864e5);               // yesterday (GIBS ~1 day latency)
-    var day = d.toISOString().slice(0, 10);
     return "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS" +
       "&REQUEST=GetMap&VERSION=1.3.0&LAYERS=" + GIBS_LAYER +
-      "&CRS=EPSG:4326&BBOX=-90,-180,90,180&WIDTH=2048&HEIGHT=1024&FORMAT=image/jpeg&TIME=" + day;
+      "&CRS=EPSG:4326&BBOX=-90,-180,90,180&WIDTH=2048&HEIGHT=1024&FORMAT=image/jpeg&TIME=" + gibsDay();
+  }
+  function loadGibsDate() {
+    if (gibsDateLoaded) return; gibsDateLoaded = true;
+    fetch("assets/gibs_latest.json").then(function (r) { return r.json(); }).then(function (m) {
+      if (m && m.date) { GIBS_DATE = m.date; if (globe && curSkin === "live") globe.globeImageUrl(gibsUrl()); }
+    }).catch(function () {});
   }
 
   var ISS = { rec: null, pt: null, track: null, started: false };
@@ -306,8 +317,8 @@
     cfg("ringsData", function () { globe.ringsData(rings); });
     cfg("pointsData", function () { globe.pointsData(points); });
     cfg("labelsData", function () { globe.labelsData(labels); });
-    report("layers set — paths:" + paths.length + " rings:" + rings.length +
-      " points:" + points.length + " labels:" + labels.length);
+    if (window.console && console.log) console.log("[DoomGlobe] layers set — paths:" + paths.length +
+      " rings:" + rings.length + " points:" + points.length + " labels:" + labels.length);
   }
 
   // ---- ISS (satellite.js TLE propagation) ----
@@ -359,8 +370,9 @@
       globe.globeImageUrl(SST).bumpImageUrl(null);
       creditEl.innerHTML = ""; creditEl.style.display = "block"; loadSstMeta();
     } else if (k === "live") {
+      loadGibsDate();
       globe.globeImageUrl(gibsUrl()).bumpImageUrl(null);
-      creditEl.innerHTML = "<b>Live Earth</b> — NASA GIBS MODIS true-color, ~24h latency";
+      creditEl.innerHTML = "<b>Live Earth</b> — NASA GIBS VIIRS true-color";
       creditEl.style.display = "block";
     } else {
       globe.globeImageUrl(CDN.night).bumpImageUrl(CDN.bump);
@@ -406,6 +418,8 @@
   switcher("dp-view", [{ label: "Map", k: "map" }, { label: "Globe", k: "globe" }], activate);
   skinSwitch = switcher("dp-skin", [{ label: "Night", k: "night" }, { label: "Live Earth", k: "live" },
     { label: "Bloodwater SST", k: "sst" }], setSkin);
+
+  loadGibsDate();   // prefetch GIBS latest date so Live Earth is correct on first click
 
   // expose a tiny hook for debugging
   window.DoomGlobe = { refresh: refresh, activate: activate };
