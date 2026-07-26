@@ -8,6 +8,8 @@
   const KEY = "meatspace";
   let buf = [];
 
+  // Use capture phase so Leaflet's map keyboard handler (which stopPropagations
+  // arrow keys when the map has focus) can't swallow the sequence before us.
   window.addEventListener("keydown", e => {
     if (e.target && /^(input|textarea|select)$/i.test(e.target.tagName)) return;
     const k = (e.key || "").toLowerCase();
@@ -16,7 +18,7 @@
     if (buf.length === KONAMI.length && buf.every((v, i) => v === KONAMI[i])) {
       toggle(); buf = [];
     }
-  });
+  }, true);
 
   function toggle() { document.body.classList.contains("meatspace") ? disable() : enable(); }
   function enable() {
