@@ -30,8 +30,8 @@
     } catch (e) {}
   })();
 
-  function fillLevel(now) {          // 45s cycle: fill to ~0.85, snap-recycle to ~0.15
-    const p = ((now - t0) % 45000) / 45000;
+  function fillLevel(now) {          // ~3.5min cycle (~3,000x real): fill to ~0.85, snap-recycle to ~0.15
+    const p = ((now - t0) % 210000) / 210000;
     return p < 0.9 ? 0.15 + (p / 0.9) * 0.7 : 0.85 - ((p - 0.9) / 0.1) * 0.7;
   }
   function rr(c, x, y, w, h, r) { c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); }
