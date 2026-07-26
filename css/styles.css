@@ -401,3 +401,131 @@ body{
   .ticker{height:30px;font-size:11px}
   .ticker-head{font-size:15px;padding:0 10px}
 }
+
+/* ---- MEATSPACE (Konami: up up down down left right left right B A) ---- */
+#ms-layer{position:fixed;inset:0;pointer-events:none;z-index:9990;overflow:hidden}
+#ms-layer > *{position:absolute;pointer-events:none}
+
+/* bloody-handprint cursor everywhere */
+body.meatspace,body.meatspace *{
+  cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><path d='M8 24 Q5 18 6 12 Q7 6 12 5 Q15 5 15 9 L15 13 Q16 13 17 12 L17 6 Q17 3 20 3 Q23 3 23 6 L23 13 Q24 13 25 13 L25 8 Q25 5 27 5 Q29 5 29 8 L29 15 Q29 22 25 26 Q22 29 16 29 Q10 29 8 24 Z' fill='%23bd0a13' stroke='%237a0b10' stroke-width='1.2'/><circle cx='12' cy='19' r='1' fill='%23400508'/><circle cx='17' cy='21' r='1.2' fill='%23400508'/><circle cx='22' cy='19' r='1' fill='%23400508'/></svg>") 16 16, crosshair !important;
+}
+
+/* full-screen meat wash, subtle throb */
+.ms-meat{inset:0;
+  background:
+    radial-gradient(70% 60% at 30% 30%, rgba(180,20,30,.55), transparent 60%),
+    radial-gradient(60% 55% at 75% 65%, rgba(120,8,14,.55), transparent 55%),
+    radial-gradient(120% 100% at 50% 50%, transparent 55%, rgba(30,0,0,.85) 100%);
+  mix-blend-mode:multiply;
+  filter:contrast(1.05) saturate(1.2);
+  animation:ms-breathe 3.6s ease-in-out infinite;
+}
+@keyframes ms-breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.015)}}
+
+/* branching capillaries tiled across the viewport */
+.ms-veins{inset:0;opacity:.5;mix-blend-mode:multiply;animation:ms-pulse 1.35s ease-in-out infinite}
+.ms-veins svg{width:100%;height:100%;display:block}
+@keyframes ms-pulse{0%,100%{opacity:.42}45%{opacity:.66}}
+
+/* hanging blood tongues from the top edge, rising ones from the bottom */
+.ms-drips{left:0;right:0;height:40vh}
+.ms-drips-top{top:0}
+.ms-drips-bot{bottom:0}
+.ms-drips svg{width:100%;height:100%;display:block}
+
+/* fly swarm — tiny buzzing dots orbiting the cursor */
+.ms-flies{inset:0}
+.ms-fly{
+  position:fixed;left:0;top:0;width:6px;height:6px;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%, #1a1015, #050000 70%);
+  box-shadow:0 0 3px rgba(0,0,0,.7);
+  pointer-events:none;z-index:9995;
+  animation:ms-buzz .07s steps(2) infinite;
+}
+.ms-fly::after{
+  content:'';position:absolute;left:-4px;top:1px;width:14px;height:4px;
+  background:rgba(180,180,200,.28);border-radius:50%;filter:blur(1.2px);
+  animation:ms-wing .06s steps(2) infinite;transform-origin:center;
+}
+@keyframes ms-buzz{0%{transform:translate(0,0)}50%{transform:translate(.6px,.5px)}}
+@keyframes ms-wing{0%{transform:scaleY(1)}50%{transform:scaleY(.15)}}
+
+/* random blood spatters that fade */
+.ms-spatters{inset:0}
+.ms-spatter{position:absolute;pointer-events:none;opacity:0;
+  transform:rotate(var(--rot,0deg)) scale(var(--scl,1));
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.6));
+  animation:ms-splat .55s ease-out forwards, ms-splat-fade 6s ease-in 2s forwards;
+}
+@keyframes ms-splat{from{opacity:0;transform:rotate(var(--rot,0deg)) scale(calc(var(--scl,1)*.3))}
+                   to  {opacity:.92;transform:rotate(var(--rot,0deg)) scale(var(--scl,1))}}
+@keyframes ms-splat-fade{to{opacity:0}}
+
+/* enable/disable toast */
+.ms-toast{
+  position:fixed;left:50%;top:20%;transform:translate(-50%,-30%);
+  padding:16px 30px;background:linear-gradient(180deg,#5a0006,#1a0002);
+  border:1px solid #7a0b10;color:#fff;
+  font-family:"Creepster","Helvetica Neue",Arial,sans-serif;
+  font-size:36px;letter-spacing:.16em;
+  text-shadow:0 0 14px rgba(230,32,28,.95),0 0 4px #fff;
+  box-shadow:0 0 48px rgba(120,8,14,.7),inset 0 0 20px rgba(0,0,0,.6);
+  opacity:0;transition:opacity .25s ease, transform .25s ease;z-index:9999;
+  pointer-events:none;
+}
+.ms-toast.on{opacity:1;transform:translate(-50%,0)}
+
+/* --- overrides while MEATSPACE is on --- */
+body.meatspace .leaflet-tile{filter:brightness(.36) contrast(1.45) saturate(1.5) sepia(.5) hue-rotate(-30deg) !important}
+body.meatspace .grade,body.meatspace .fog{opacity:0 !important}
+body.meatspace .vignette{background:radial-gradient(120% 100% at 50% 50%, transparent 38%, rgba(20,0,0,.95) 100%) !important;z-index:9991}
+body.meatspace .scanline{opacity:.03}
+
+body.meatspace .telem{
+  background:linear-gradient(180deg, rgba(30,3,6,.94), rgba(12,0,2,.94)) !important;
+  border-color:#7a0b10 !important;
+  box-shadow:inset 0 0 40px rgba(200,20,30,.28), 0 0 20px rgba(120,8,14,.5) !important;
+}
+body.meatspace .telem .creep{color:#fff;text-shadow:0 0 10px rgba(230,32,28,.9)}
+body.meatspace .telem-sub{color:#c99}
+body.meatspace .tn,body.meatspace .tv{color:#fdd}
+body.meatspace .airagg small{color:#faa}
+
+body.meatspace .ticker{
+  background:linear-gradient(180deg, rgba(58,4,8,.88), rgba(120,8,14,.96)) !important;
+  border-top-color:#e6201c !important;
+  box-shadow:0 -10px 24px rgba(120,8,14,.65) !important;
+}
+body.meatspace .ticker-head{font-size:0 !important}
+body.meatspace .ticker-head::before{
+  content:'MEAT WIRE';font-size:18px;letter-spacing:.18em;
+  font-family:"Creepster","Helvetica Neue",Arial,sans-serif;
+  color:#fff;text-shadow:0 0 12px #e6201c;
+}
+body.meatspace .ti-text{color:#ffdada}
+body.meatspace .ti-sep{color:#c66}
+
+body.meatspace .topbar{
+  background:linear-gradient(180deg, rgba(58,4,8,.9), rgba(6,0,0,0)) !important;
+  border-bottom-color:#7a0b10 !important;
+}
+body.meatspace .chip{background:#1a0002 !important;border-color:#7a0b10 !important;color:#fdb !important}
+body.meatspace .chip.demo,body.meatspace .chip.live{color:#fff !important}
+body.meatspace .mark svg{filter:drop-shadow(0 0 14px rgba(230,32,28,.9)) drop-shadow(0 0 3px #fff)}
+body.meatspace .eyeball svg{filter:drop-shadow(0 0 12px rgba(230,32,28,.85))}
+
+/* the whole layout heartbeats gently */
+body.meatspace .wrap{animation:ms-heart 1.1s ease-in-out infinite;transform-origin:center}
+@keyframes ms-heart{
+  0%,100%{transform:scale(1)}
+  15%{transform:scale(1.008)}
+  30%{transform:scale(1)}
+  45%{transform:scale(1.005)}
+  60%{transform:scale(1)}
+}
+
+@media (prefers-reduced-motion: reduce){
+  .ms-meat,.ms-veins,body.meatspace .wrap{animation:none !important}
+  .ms-fly{display:none}
+}
