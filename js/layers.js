@@ -17,6 +17,7 @@ function initLayers() {
   add("Volcanoes", typeof volcanoLayer !== "undefined" ? volcanoLayer : null);
   add("Contagion", typeof contagionLayer !== "undefined" ? contagionLayer : null);
   add("Jason", typeof jasonLayer !== "undefined" ? jasonLayer : null);
+  add("Horror sites", typeof horrorLayer !== "undefined" ? horrorLayer : null);
   L.control.layers(null, ov, { collapsed: true, position: "topright" }).addTo(map);
 }
 initLayers();

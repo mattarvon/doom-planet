@@ -355,6 +355,25 @@ body{
   .legend{display:none}
 }
 
+/* ---- horror easter-egg markers (js/horror.js) ---- */
+.horror-marker{background:none;border:none}
+.h-badge{
+  width:26px;height:26px;border-radius:50%;
+  background:rgba(6,8,11,.9);
+  border:1.6px solid var(--rust);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;line-height:1;color:#fff;
+  box-shadow:0 0 8px rgba(189,10,19,.55);
+  transition:transform .15s ease, box-shadow .15s ease;
+  cursor:pointer;
+}
+.h-badge:hover{transform:scale(1.18);box-shadow:0 0 14px rgba(230,32,28,.85)}
+.horror-marker.cat-slasher  .h-badge{border-color:#e6201c;box-shadow:0 0 8px rgba(230,32,28,.55)}
+.horror-marker.cat-haunt    .h-badge{border-color:#e69a2f;box-shadow:0 0 8px rgba(230,154,47,.55)}
+.horror-marker.cat-cosmic   .h-badge{border-color:#9c3bd1;box-shadow:0 0 8px rgba(156,59,209,.55)}
+.horror-marker.cat-cryptid  .h-badge{border-color:#2fb6b6;box-shadow:0 0 8px rgba(47,182,182,.55)}
+.horror-marker.cat-disaster .h-badge{border-color:#e6d756;box-shadow:0 0 8px rgba(230,215,86,.55)}
+
 /* ---- DOOM WIRE bottom marquee ---- */
 .ticker{
   position:absolute;left:0;right:0;bottom:0;z-index:6;
