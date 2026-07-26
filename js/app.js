@@ -140,7 +140,7 @@ function render() {
 
     const icon = L.divIcon({
       className: 'smark' + (sel ? ' sel' : '') + (hot ? ' hot' : ''),
-      html: markerHTML(s, hot), iconSize: [132, 106], iconAnchor: [66, 53],
+      html: markerHTML(s, hot), iconSize: [92, 74], iconAnchor: [46, 37],
     });
     const m = L.marker([+lp.latitude, +lp.longitude], { icon, riseOnHover: true }).addTo(markersLayer);
     m.on('click', () => select(s.id));

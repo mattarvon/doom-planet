@@ -221,7 +221,7 @@ body{
 .smark.hot .sharkwrap .body{filter:drop-shadow(0 0 5px rgba(230,32,28,.5))}
 .smark:hover .sharkwrap .body,.smark.sel .sharkwrap .body{filter:drop-shadow(0 0 13px rgba(230,32,28,.95))}
 /* transparent-PNG cutout shark: a real shark sitting in the water, no frame */
-.scutwrap{position:absolute;left:50%;top:50%;width:70px;height:70px;margin:-35px 0 0 -35px;
+.scutwrap{position:absolute;left:50%;top:50%;width:50px;height:50px;margin:-25px 0 0 -25px;
   transform:scaleX(var(--flip,1));pointer-events:none}
 .scut{display:block;width:100%;height:100%;object-fit:contain;
   filter:drop-shadow(0 3px 4px rgba(0,0,0,.7))}
@@ -231,7 +231,7 @@ body{
 .sharkwrap,.gpart,.chum,.pulse{transform-box:fill-box;transform-origin:center}
 .smark .tail,.smark .jaw,.smark .gdrip,.smark .eye{transform-box:fill-box}
 
-.smark .nm{position:absolute;left:50%;top:74px;transform:translateX(-50%);white-space:nowrap;
+.smark .nm{position:absolute;left:50%;top:52px;transform:translateX(-50%);white-space:nowrap;
   font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--bone);opacity:0;
   transition:opacity .18s;text-shadow:0 0 3px #05080a,0 0 3px #05080a;pointer-events:none}
 .smark:hover .nm,.smark.sel .nm{opacity:1}
