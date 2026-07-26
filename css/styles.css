@@ -354,3 +354,50 @@ body{
   .dossier{width:calc(100% - 28px)}
   .legend{display:none}
 }
+
+/* ---- DOOM WIRE bottom marquee ---- */
+.ticker{
+  position:absolute;left:0;right:0;bottom:0;z-index:6;
+  height:34px;display:flex;align-items:stretch;
+  background:linear-gradient(180deg, rgba(6,8,11,.35), rgba(6,8,11,.94) 45%);
+  border-top:1px solid #1d3a44;
+  color:var(--bone);font-size:12px;letter-spacing:.05em;
+  overflow:hidden;pointer-events:auto;
+  box-shadow:0 -8px 22px rgba(3,4,6,.55);
+}
+.ticker-head{
+  flex:0 0 auto;align-self:stretch;display:flex;align-items:center;
+  padding:0 14px;
+  background:linear-gradient(180deg,#5a1418,#2d0509);
+  border-right:1px solid #7a0b10;
+  color:#fff;font-family:"Creepster","Helvetica Neue",Arial,sans-serif;
+  font-size:18px;letter-spacing:.18em;
+  text-shadow:0 0 8px rgba(230,32,28,.7);
+  user-select:none;
+}
+.ticker-viewport{flex:1;overflow:hidden;position:relative;display:flex;align-items:center;padding-left:10px}
+.ticker-track{
+  display:inline-flex;align-items:center;gap:14px;white-space:nowrap;
+  animation-name:ticker-scroll;animation-timing-function:linear;animation-iteration-count:infinite;
+  will-change:transform;
+}
+.ticker:hover .ticker-track{animation-play-state:paused}
+@keyframes ticker-scroll{
+  from{transform:translateX(0)}
+  to  {transform:translateX(-50%)}
+}
+.ti{display:inline-flex;align-items:center;gap:6px}
+.ti-icon{font-size:13px;line-height:1}
+.ti-text{color:var(--bone);opacity:.94}
+.ti-click{cursor:pointer;transition:color .1s ease}
+.ti-click:hover .ti-text{color:#fff;text-shadow:0 0 6px rgba(230,32,28,.45)}
+.ti-sep{color:#3a4a52;margin:0 4px}
+.ti-idle{color:var(--ash);font-style:italic;opacity:.75}
+
+/* keep Leaflet's attribution/controls above the ticker */
+.leaflet-bottom{bottom:38px !important}
+
+@media(max-width:560px){
+  .ticker{height:30px;font-size:11px}
+  .ticker-head{font-size:15px;padding:0 10px}
+}
